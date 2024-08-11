@@ -31,7 +31,7 @@
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/pesatrack.git
+    git clone https://github.com/hermesgido/pesatrack.git
     cd pesatrack
     ```
 
@@ -61,4 +61,4 @@ PesaTrack is released under the [MIT License](LICENSE).
 
 ## Contact
 
-If you have any questions or suggestions, feel free to reach out at `your-email@example.com`.
+If you have any questions or suggestions, feel free to reach out at `hermessgido@gmail.com`.
