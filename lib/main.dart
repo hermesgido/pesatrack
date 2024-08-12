@@ -1,6 +1,42 @@
+// import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
+// import 'package:pesatrack/screens/auth/register.dart';
+// import 'package:pesatrack/utils/theme.dart';
+
+// void main() {
+//   runApp(const MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+
+//   // This widget is the root of your application.
+//   @override
+//   Widget build(BuildContext context) {
+//     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+//       statusBarColor: Color(0xFF6A41CC),
+//       statusBarIconBrightness: Brightness.light,
+//     ));
+
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       title: 'Expense Tracker',
+//       themeMode: ThemeMode.dark,
+//       darkTheme: AppThemes.darkTheme,
+//       theme: ThemeData(
+//         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+//         useMaterial3: true,
+//       ),
+//       home: const RegisterPage(),
+//     );
+//   }
+// }
+
 import 'package:flutter/material.dart';
-import 'package:pesatrack/screens/auth/login.dart';
-import 'package:pesatrack/screens/auth/register.dart';
+import 'package:flutter/services.dart';
+import 'package:pesatrack/screens/home_page.dart';
+import 'package:pesatrack/screens/settings/settings.dart';
+import 'package:pesatrack/utils/theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,64 +45,85 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Color(0xFF6A41CC),
+      statusBarIconBrightness: Brightness.light,
+    ));
+
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      title: 'Expense Tracker',
+      themeMode: ThemeMode.dark,
+      darkTheme: AppThemes.darkTheme,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const SignUpPage(),
+      home: const MainPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _MainPageState createState() => _MainPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _MainPageState extends State<MainPage> {
+  final PageController _pageController = PageController();
+  int _currentIndex = 0;
 
-  void _incrementCounter() {
+  void _onPageChanged(int index) {
     setState(() {
-      _counter++;
+      _currentIndex = index;
     });
+  }
+
+  void _onNavBarTapped(int index) {
+    _pageController.jumpToPage(index);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+        children: [
+          HomeScreen(),
+          Center(child: Text('Total Balance Page')),
+          Center(child: Text('Categories Page')),
+          Center(child: Text('Last Transactions Page')),
+          SettingsPage(),
+        ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: _onNavBarTapped,
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          const BottomNavigationBarItem(
+              icon: Icon(Icons.show_chart), label: 'Track'),
+          const BottomNavigationBarItem(
+              icon: Icon(Icons.add_circle_outline), label: ''),
+          const BottomNavigationBarItem(
+              icon: Icon(Icons.account_balance_wallet), label: 'Wallet'),
+          BottomNavigationBarItem(
+              icon: GestureDetector(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    return SettingsPage();
+                  }));
+                },
+                child: const Icon(Icons.person),
+              ),
+              label: 'Profile'),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

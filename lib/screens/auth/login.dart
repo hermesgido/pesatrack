@@ -1,25 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-
-import 'package:pesatrack/screens/auth/phone_number_auth.dart';
+import 'package:pesatrack/screens/auth/login.dart';
 import 'package:pesatrack/screens/auth/register.dart';
+import 'package:pesatrack/screens/home_page.dart';
 
-class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
-  Widget currentPage = SignUpPage();
-  @override
-  void initState() {
-    super.initState();
-    checkLogin();
-  }
-
-  void checkLogin() async {}
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool circular = false;
@@ -35,7 +27,7 @@ class _SignUpPageState extends State<SignUpPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                "Sign Up",
+                "Login Now",
                 style: TextStyle(
                   fontSize: 35,
                   color: Colors.white,
@@ -45,17 +37,11 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(
                 height: 20,
               ),
-              buttonItem("assets/google.svg", "Continue with Google", 25,
-                  () async {
-                // await authClass.googleSignIn(context);
-              }),
+              buttonItem(
+                  "assets/google.svg", "Continue with Google", 25, () {}),
               const SizedBox(
                 height: 15,
               ),
-              buttonItem("assets/phone.svg", "Continue with Phone", 30, () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (builder) => PhoneAuthPage()));
-              }),
               const SizedBox(
                 height: 10,
               ),
@@ -74,15 +60,15 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(
                 height: 15,
               ),
-              colorButton("Sign Up"),
+              colorButton("Login"),
               const SizedBox(
                 height: 15,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
+                children: [
                   const Text(
-                    "If you already have an Account ?",
+                    "Don't have an Account ?",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -93,11 +79,11 @@ class _SignUpPageState extends State<SignUpPage> {
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (builder) => const SignInPage()),
+                              builder: (builder) => const RegisterPage()),
                           (route) => false);
                     },
                     child: const Text(
-                      " Login",
+                      " Sign Up",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -106,6 +92,17 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              const Text(
+                "Forgot Password ?",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 17,
+                ),
               ),
             ],
           ),
@@ -195,10 +192,9 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget colorButton(String name) {
     return InkWell(
       onTap: () async {
-        setState(() {
-          circular = true;
-        });
-        print("00");
+        Navigator.push(context, MaterialPageRoute(builder: (_) {
+          return HomeScreen();
+        }));
       },
       child: Container(
         width: MediaQuery.of(context).size.width - 90,
@@ -217,7 +213,7 @@ class _SignUpPageState extends State<SignUpPage> {
               : Text(name,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 16,
+                    fontSize: 20,
                   )),
         ),
       ),

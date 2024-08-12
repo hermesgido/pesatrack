@@ -2,14 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pesatrack/screens/auth/login.dart';
 
-class SignInPage extends StatefulWidget {
-  const SignInPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<SignInPage> createState() => _SignInPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _SignInPageState extends State<SignInPage> {
+class _RegisterPageState extends State<RegisterPage> {
+  Widget currentPage = const RegisterPage();
+  @override
+  void initState() {
+    super.initState();
+    checkLogin();
+  }
+
+  void checkLogin() async {}
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool circular = false;
@@ -25,7 +33,7 @@ class _SignInPageState extends State<SignInPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                "Sign In",
+                "Register",
                 style: TextStyle(
                   fontSize: 35,
                   color: Colors.white,
@@ -35,12 +43,18 @@ class _SignInPageState extends State<SignInPage> {
               const SizedBox(
                 height: 20,
               ),
-              buttonItem(
-                  "assets/google.svg", "Continue with Google", 25, () {}),
+              buttonItem("assets/google.svg", "Continue with Google", 25,
+                  () async {
+                // await authClass.googleSignIn(context);
+              }),
               const SizedBox(
                 height: 15,
               ),
-              buttonItem("assets/phone.svg", "Continue with Phone", 30, () {}),
+              // buttonItem("assets/phone.svg", "Continue with Phone", 30, ()
+              // {
+              //   Navigator.push(context,
+              //       MaterialPageRoute(builder: (builder) => PhoneAuthPage()));
+              // }),
               const SizedBox(
                 height: 10,
               ),
@@ -65,9 +79,9 @@ class _SignInPageState extends State<SignInPage> {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                children: <Widget>[
                   const Text(
-                    "If you don't have an Account ?",
+                    "Already have an Account ?",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -77,11 +91,12 @@ class _SignInPageState extends State<SignInPage> {
                     onTap: () {
                       Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (builder) => const SignUpPage()),
+                          MaterialPageRoute(
+                              builder: (builder) => const LoginPage()),
                           (route) => false);
                     },
                     child: const Text(
-                      " Sign Up",
+                      " Login",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -90,17 +105,6 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const Text(
-                "Forgot Password ?",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 17,
-                ),
               ),
             ],
           ),
@@ -190,7 +194,10 @@ class _SignInPageState extends State<SignInPage> {
   Widget colorButton(String name) {
     return InkWell(
       onTap: () async {
-        print("logiiii");
+        setState(() {
+          circular = true;
+        });
+        print("00");
       },
       child: Container(
         width: MediaQuery.of(context).size.width - 90,
@@ -209,7 +216,7 @@ class _SignInPageState extends State<SignInPage> {
               : Text(name,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: 16,
                   )),
         ),
       ),
