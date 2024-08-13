@@ -38,6 +38,8 @@ dependencies:
   flutter_svg: ^2.0.10+1
   otp_text_field: any
   timer_button: any
+  awesome_bottom_bar: ^1.2.4
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:

@@ -1,42 +1,10 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'package:pesatrack/screens/auth/register.dart';
-// import 'package:pesatrack/utils/theme.dart';
-
-// void main() {
-//   runApp(const MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   // This widget is the root of your application.
-//   @override
-//   Widget build(BuildContext context) {
-//     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-//       statusBarColor: Color(0xFF6A41CC),
-//       statusBarIconBrightness: Brightness.light,
-//     ));
-
-//     return MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       title: 'Expense Tracker',
-//       themeMode: ThemeMode.dark,
-//       darkTheme: AppThemes.darkTheme,
-//       theme: ThemeData(
-//         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-//         useMaterial3: true,
-//       ),
-//       home: const RegisterPage(),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pesatrack/screens/home_page.dart';
 import 'package:pesatrack/screens/settings/settings.dart';
+import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:pesatrack/utils/theme.dart';
+import 'package:pesatrack/widgets/bottom_sheet.dart';
 
 void main() {
   runApp(const MyApp());
@@ -48,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Color(0xFF6A41CC),
+      statusBarColor: Color(0xFF6D53F4),
       statusBarIconBrightness: Brightness.light,
     ));
 
@@ -84,45 +52,69 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _onNavBarTapped(int index) {
-    _pageController.jumpToPage(index);
+    if (index == 2) {
+      // Show bottom sheet without changing the page
+      showAddExpenseModal(context);
+    } else {
+      _pageController.jumpToPage(index);
+      setState(() {
+        _currentIndex = index;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    const List<TabItem> items = [
+      TabItem(
+        icon: Icons.home,
+        title: 'Home',
+      ),
+      TabItem(
+        icon: Icons.show_chart,
+        title: 'Track',
+      ),
+      TabItem(
+        icon: Icons.add_circle_outline,
+        title: '',
+      ),
+      TabItem(
+        icon: Icons.account_balance_wallet,
+        title: 'Wallet',
+      ),
+      TabItem(
+        icon: Icons.person,
+        title: 'Profile',
+      ),
+    ];
+
     return Scaffold(
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,
         children: [
           HomeScreen(),
-          Center(child: Text('Total Balance Page')),
-          Center(child: Text('Categories Page')),
-          Center(child: Text('Last Transactions Page')),
+          const Center(child: Text('Total Balance Page')),
+          HomeScreen(), // Keep the current page active instead of showing an empty page
+          const Center(child: Text('Last Transactions Page')),
           SettingsPage(),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavBarTapped,
-        items: [
-          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          const BottomNavigationBarItem(
-              icon: Icon(Icons.show_chart), label: 'Track'),
-          const BottomNavigationBarItem(
-              icon: Icon(Icons.add_circle_outline), label: ''),
-          const BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet), label: 'Wallet'),
-          BottomNavigationBarItem(
-              icon: GestureDetector(
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return SettingsPage();
-                  }));
-                },
-                child: const Icon(Icons.person),
-              ),
-              label: 'Profile'),
-        ],
+      bottomNavigationBar: BottomBarCreative(
+        items: items,
+        backgroundColor: Theme.of(context).primaryColor,
+        color: Colors.grey,
+        colorSelected: Colors.white,
+        indexSelected: _currentIndex,
+        isFloating: true,
+        highlightStyle: HighlightStyle(
+          color: Theme.of(context).primaryColor,
+          isHexagon: true,
+          elevation: 2,
+        ),
+        onTap: (int index) {
+          _onNavBarTapped(index);
+        },
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:pesatrack/main.dart';
 import 'package:pesatrack/screens/auth/login.dart';
 import 'package:pesatrack/screens/auth/register.dart';
 import 'package:pesatrack/screens/home_page.dart';
@@ -193,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
     return InkWell(
       onTap: () async {
         Navigator.push(context, MaterialPageRoute(builder: (_) {
-          return HomeScreen();
+          return MyApp();
         }));
       },
       child: Container(

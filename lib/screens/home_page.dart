@@ -186,7 +186,11 @@ class HomeScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.monetization_on, size: 30),
+          const Icon(
+            Icons.monetization_on,
+            size: 30,
+            color: const Color(0xFF6D53F4),
+          ),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,6 +225,9 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
+
+
 
 class CategoriesWidget extends StatelessWidget {
   @override
