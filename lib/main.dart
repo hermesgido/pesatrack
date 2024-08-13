@@ -53,10 +53,13 @@ class _MainPageState extends State<MainPage> {
 
   void _onNavBarTapped(int index) {
     if (index == 2) {
-      // Show bottom sheet without changing the page
       showAddExpenseModal(context);
     } else {
-      _pageController.jumpToPage(index);
+      _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 1), // Adjust duration
+        curve: Curves.easeInOut, // Adjust curve for different effects
+      );
       setState(() {
         _currentIndex = index;
       });
@@ -92,6 +95,8 @@ class _MainPageState extends State<MainPage> {
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,
+        physics: const NeverScrollableScrollPhysics(), // Disable swiping
+
         children: [
           HomeScreen(),
           const Center(child: Text('Total Balance Page')),

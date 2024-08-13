@@ -1,9 +1,17 @@
+import 'dart:developer';
+
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void showAddExpenseModal(BuildContext context) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
+    transitionAnimationController: AnimationController(
+      duration: const Duration(milliseconds: 3), // Adjust speed here
+      vsync: Navigator.of(context),
+    ),
     backgroundColor: Colors.transparent, // Transparent background
     isDismissible:
         true, // Allows dismissing the modal by tapping outside or pressing the back button
@@ -44,6 +52,15 @@ void showAddExpenseModal(BuildContext context) {
                           const SizedBox(height: 16),
                           TextField(
                             decoration: InputDecoration(
+                              labelText: 'Name',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          TextField(
+                            decoration: InputDecoration(
                               labelText: 'Expense Amount',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
@@ -51,22 +68,7 @@ void showAddExpenseModal(BuildContext context) {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          DropdownButtonFormField(
-                            decoration: InputDecoration(
-                              labelText: 'Choose Category',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                            ),
-                            items: const [
-                              DropdownMenuItem(
-                                  child: Text("Food"), value: "Food"),
-                              DropdownMenuItem(
-                                  child: Text("Transport"), value: "Transport"),
-                              // Add more categories here
-                            ],
-                            onChanged: (value) {},
-                          ),
+                          const SearchDropdown(),
                           const SizedBox(height: 16),
                           TextField(
                             decoration: InputDecoration(
@@ -113,11 +115,31 @@ void showAddExpenseModal(BuildContext context) {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Handle save expense action here
-                            },
-                            child: const Text('Add Expense'),
+                          SizedBox(
+                            width: double.infinity,
+                            // decoration: BoxDecoration(),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                // navigateToMessagesScreen(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF6D53F4),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 15),
+                                child: Text(
+                                  'Add Expense',
+                                  style: GoogleFonts.inter(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -131,4 +153,61 @@ void showAddExpenseModal(BuildContext context) {
       );
     },
   );
+}
+
+class Job with CustomDropdownListFilter {
+  final String name;
+  final IconData icon;
+  const Job(this.name, this.icon);
+
+  @override
+  String toString() {
+    return name;
+  }
+
+  @override
+  bool filter(String query) {
+    return name.toLowerCase().contains(query.toLowerCase());
+  }
+}
+
+const List<Job> _list = [
+  Job('Developer', Icons.developer_mode),
+  Job('Designer', Icons.design_services),
+  Job('Consultant', Icons.account_balance),
+  Job('Student', Icons.school),
+];
+
+class SearchDropdown extends StatelessWidget {
+  const SearchDropdown({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomDropdown<Job>.search(
+      decoration: CustomDropdownDecoration(
+        closedFillColor: Theme.of(context).colorScheme.background,
+        closedBorderRadius: BorderRadius.circular(12),
+        closedBorder: const Border(
+            bottom: BorderSide(
+              color: Colors.white,
+            ),
+            top: BorderSide(
+              color: Colors.white,
+            ),
+            left: BorderSide(
+              color: Colors.white,
+            ),
+            right: BorderSide(
+              color: Colors.white,
+            )),
+        expandedFillColor: Theme.of(context).colorScheme.background,
+      ),
+      hintText: 'Select Category',
+      items: _list,
+      excludeSelected: false,
+      onChanged: (value) {
+        log('changing value to: $value');
+      },
+    );
+  }
 }
