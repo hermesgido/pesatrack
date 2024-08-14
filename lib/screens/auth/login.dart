@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pesatrack/main.dart';
-import 'package:pesatrack/screens/auth/login.dart';
 import 'package:pesatrack/screens/auth/register.dart';
-import 'package:pesatrack/screens/home_page.dart';
+import 'package:pesatrack/providers/authprovider.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,8 +16,29 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool circular = false;
+
+  Future<void> _login() async {
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    try {
+      await authProvider.loginUser(email, password, context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login successful')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -35,36 +56,22 @@ class _LoginPageState extends State<LoginPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               buttonItem(
                   "assets/google.svg", "Continue with Google", 25, () {}),
-              const SizedBox(
-                height: 15,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 15),
+              const SizedBox(height: 10),
               const Text(
                 "Or",
                 style: TextStyle(color: Colors.white, fontSize: 18),
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               textItem("Email", _emailController, false),
-              const SizedBox(
-                height: 15,
-              ),
+              const SizedBox(height: 15),
               textItem("Password", _passwordController, true),
-              const SizedBox(
-                height: 15,
-              ),
-              colorButton("Login"),
-              const SizedBox(
-                height: 15,
-              ),
+              const SizedBox(height: 15),
+              colorButton("Login", authProvider),
+              const SizedBox(height: 15),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -78,10 +85,12 @@ class _LoginPageState extends State<LoginPage> {
                   InkWell(
                     onTap: () {
                       Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (builder) => const RegisterPage()),
-                          (route) => false);
+                        context,
+                        MaterialPageRoute(
+                          builder: (builder) => const RegisterPage(),
+                        ),
+                        (route) => false,
+                      );
                     },
                     child: const Text(
                       " Sign Up",
@@ -94,9 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ],
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               const Text(
                 "Forgot Password ?",
                 style: TextStyle(
@@ -123,11 +130,12 @@ class _LoginPageState extends State<LoginPage> {
           elevation: 8,
           color: Colors.black,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-              side: const BorderSide(
-                width: 1,
-                color: Colors.grey,
-              )),
+            borderRadius: BorderRadius.circular(15),
+            side: const BorderSide(
+              width: 1,
+              color: Colors.grey,
+            ),
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -136,9 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                 height: size,
                 width: size,
               ),
-              const SizedBox(
-                width: 15,
-              ),
+              const SizedBox(width: 15),
               Text(
                 buttonName,
                 style: const TextStyle(
@@ -190,32 +196,34 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget colorButton(String name) {
+  Widget colorButton(String name, AuthProvider authProvider) {
     return InkWell(
       onTap: () async {
-        Navigator.push(context, MaterialPageRoute(builder: (_) {
-          return MyApp();
-        }));
+        await _login();
       },
       child: Container(
         width: MediaQuery.of(context).size.width - 90,
         height: 60,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          gradient: const LinearGradient(colors: [
-            Color(0xFFFD746C),
-            Color(0xFFFF9068),
-            Color(0xFFFD746C),
-          ]),
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFFFD746C),
+              Color(0xFFFF9068),
+              Color(0xFFFD746C),
+            ],
+          ),
         ),
         child: Center(
-          child: circular
+          child: authProvider.isLoading
               ? const CircularProgressIndicator()
-              : Text(name,
+              : Text(
+                  name,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
-                  )),
+                  ),
+                ),
         ),
       ),
     );

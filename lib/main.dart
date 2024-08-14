@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pesatrack/providers/authprovider.dart';
+import 'package:pesatrack/screens/auth/login.dart';
+import 'package:pesatrack/screens/auth/register.dart';
 import 'package:pesatrack/screens/home_page.dart';
 import 'package:pesatrack/screens/settings/settings.dart';
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:pesatrack/utils/theme.dart';
 import 'package:pesatrack/widgets/bottom_sheet.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -29,7 +40,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MainPage(),
+      home: LoginPage(),
     );
   }
 }

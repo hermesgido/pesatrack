@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:pesatrack/screens/auth/login.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import 'package:pesatrack/providers/authprovider.dart';
+import 'package:pesatrack/main.dart';
+import 'login.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -10,103 +13,113 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  Widget currentPage = const RegisterPage();
-  @override
-  void initState() {
-    super.initState();
-    checkLogin();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  Future<void> _register() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final String email = _emailController.text.trim();
+      final String password = _passwordController.text.trim();
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      try {
+        await authProvider.registerUser(email, password, context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registration successful')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
   }
 
-  void checkLogin() async {}
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  bool circular = false;
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
           color: Colors.black,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                "Register",
-                style: TextStyle(
-                  fontSize: 35,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              buttonItem("assets/google.svg", "Continue with Google", 25,
-                  () async {
-                // await authClass.googleSignIn(context);
-              }),
-              const SizedBox(
-                height: 15,
-              ),
-              // buttonItem("assets/phone.svg", "Continue with Phone", 30, ()
-              // {
-              //   Navigator.push(context,
-              //       MaterialPageRoute(builder: (builder) => PhoneAuthPage()));
-              // }),
-              const SizedBox(
-                height: 10,
-              ),
-              const Text(
-                "Or",
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              textItem("Email", _emailController, false),
-              const SizedBox(
-                height: 15,
-              ),
-              textItem("Password", _passwordController, true),
-              const SizedBox(
-                height: 15,
-              ),
-              colorButton("Sign Up"),
-              const SizedBox(
-                height: 15,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const Text(
-                    "Already have an Account ?",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Register",
+                  style: TextStyle(
+                    fontSize: 35,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (builder) => const LoginPage()),
-                          (route) => false);
-                    },
-                    child: const Text(
-                      " Login",
+                ),
+                const SizedBox(height: 20),
+                buttonItem(
+                  "assets/google.svg",
+                  "Continue with Google",
+                  25,
+                  () async {
+                    // await authClass.googleSignIn(context);
+                  },
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  "Or",
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+                const SizedBox(height: 10),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      textItem("Email", _emailController, false),
+                      const SizedBox(height: 15),
+                      textItem("Password", _passwordController, true),
+                      const SizedBox(height: 15),
+                      colorButton("Sign Up", authProvider),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Text(
+                      "Already have an Account?",
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
                         color: Colors.white,
                         fontSize: 18,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    InkWell(
+                      onTap: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginPage(),
+                          ),
+                          (route) => false,
+                        );
+                      },
+                      child: const Text(
+                        " Login",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -124,11 +137,12 @@ class _RegisterPageState extends State<RegisterPage> {
           elevation: 8,
           color: Colors.black,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-              side: const BorderSide(
-                width: 1,
-                color: Colors.grey,
-              )),
+            borderRadius: BorderRadius.circular(15),
+            side: const BorderSide(
+              width: 1,
+              color: Colors.grey,
+            ),
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -137,9 +151,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 height: size,
                 width: size,
               ),
-              const SizedBox(
-                width: 15,
-              ),
+              const SizedBox(width: 15),
               Text(
                 buttonName,
                 style: const TextStyle(
@@ -158,7 +170,6 @@ class _RegisterPageState extends State<RegisterPage> {
       String name, TextEditingController controller, bool obsecureText) {
     return Container(
       width: MediaQuery.of(context).size.width - 70,
-      height: 55,
       child: TextFormField(
         controller: controller,
         obscureText: obsecureText,
@@ -186,38 +197,60 @@ class _RegisterPageState extends State<RegisterPage> {
               color: Colors.grey,
             ),
           ),
+          errorStyle: const TextStyle(
+            color: Colors.red,
+            fontSize: 12,
+          ),
+          errorMaxLines: 1,
         ),
+        validator: (value) {
+          if (name == "Email") {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your email';
+            } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+              return 'Please enter a valid email address';
+            }
+          } else if (name == "Password") {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your password';
+            } else if (value.length < 4) {
+              return 'Password must be at least 4 characters long';
+            }
+          }
+          return null;
+        },
       ),
     );
   }
 
-  Widget colorButton(String name) {
+  Widget colorButton(String name, AuthProvider authProvider) {
     return InkWell(
       onTap: () async {
-        setState(() {
-          circular = true;
-        });
-        print("00");
+        await _register();
       },
       child: Container(
         width: MediaQuery.of(context).size.width - 90,
         height: 60,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          gradient: const LinearGradient(colors: [
-            Color(0xFFFD746C),
-            Color(0xFFFF9068),
-            Color(0xFFFD746C),
-          ]),
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF6D53F4),
+              Color(0xFF6D53F4),
+              Color(0xFF6D53F4),
+            ],
+          ),
         ),
         child: Center(
-          child: circular
+          child: authProvider.isLoading
               ? const CircularProgressIndicator()
-              : Text(name,
+              : Text(
+                  name,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
-                  )),
+                  ),
+                ),
         ),
       ),
     );
