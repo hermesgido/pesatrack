@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pesatrack/providers/authprovider.dart';
 import 'package:pesatrack/screens/auth/login.dart';
-import 'package:pesatrack/screens/auth/register.dart';
 import 'package:pesatrack/screens/home_page.dart';
-import 'package:pesatrack/screens/settings/settings.dart';
+import 'package:pesatrack/screens/settings/profile_screen.dart';
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:pesatrack/utils/theme.dart';
 import 'package:pesatrack/widgets/bottom_sheet.dart';
@@ -21,8 +20,20 @@ void main() {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Check if the user is authenticated
+    Provider.of<AuthProvider>(context, listen: false).checkAuthentication(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +41,8 @@ class MyApp extends StatelessWidget {
       statusBarColor: Color(0xFF6D53F4),
       statusBarIconBrightness: Brightness.light,
     ));
+
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -40,7 +53,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: HomeScreen(),
+      // If authenticated, show MainPage, else show LoginPage
+      home: authProvider.isAuthenticated ? const MainPage() : const LoginPage(),
     );
   }
 }
@@ -55,6 +69,23 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    // Check if the user is authenticated
+    if (!authProvider.isAuthenticated) {
+      // Redirect to LoginPage if not authenticated
+      Future.microtask(() {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+          (Route<dynamic> route) => false,
+        );
+      });
+    }
+  }
 
   void _onPageChanged(int index) {
     setState(() {
@@ -107,13 +138,12 @@ class _MainPageState extends State<MainPage> {
         controller: _pageController,
         onPageChanged: _onPageChanged,
         physics: const NeverScrollableScrollPhysics(), // Disable swiping
-
         children: [
           HomeScreen(),
           const Center(child: Text('Total Balance Page')),
           HomeScreen(), // Keep the current page active instead of showing an empty page
           const Center(child: Text('Last Transactions Page')),
-          SettingsPage(),
+          ProfileScreen()
         ],
       ),
       bottomNavigationBar: BottomBarCreative(

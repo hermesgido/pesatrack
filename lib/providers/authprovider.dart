@@ -2,12 +2,51 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pesatrack/main.dart';
+import 'package:pesatrack/screens/auth/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pesatrack/utils/urls.dart';
 
 class AuthProvider with ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  bool _isAuthenticated = false;
+  bool get isAuthenticated => _isAuthenticated;
+
+  Future<void> checkAuthentication(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token != null) {
+      // Send a request to the backend to verify the token
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/token/verify/'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'token': token}),
+      );
+
+      if (response.statusCode == 200) {
+        // Token is valid
+        _isAuthenticated = true;
+      } else {
+        // Token is invalid or expired
+        _isAuthenticated = false;
+        prefs.remove('token'); // Optionally remove the token if invalid
+        // WidgetsBinding.instance.addPostFrameCallback((_) {
+        //   Navigator.of(context).pushAndRemoveUntil(
+        //     MaterialPageRoute(builder: (context) => const LoginPage()),
+        //     (Route<dynamic> route) => false,
+        //   );
+        // });
+      }
+    } else {
+      _isAuthenticated = false;
+    }
+
+    notifyListeners();
+  }
 
   Future<void> registerUser(
       String email, String password, BuildContext context) async {
