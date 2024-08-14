@@ -226,9 +226,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-
-
-
 class CategoriesWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -290,7 +287,7 @@ class CategoriesWidget extends StatelessWidget {
             radius: 24,
             child: Icon(
               iconData,
-              color: Colors.white,
+              color: Theme.of(context).primaryColor,
             )),
         const SizedBox(height: 8),
         Text(

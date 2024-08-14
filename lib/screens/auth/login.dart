@@ -208,9 +208,9 @@ class _LoginPageState extends State<LoginPage> {
           borderRadius: BorderRadius.circular(20),
           gradient: const LinearGradient(
             colors: [
-              Color(0xFFFD746C),
-              Color(0xFFFF9068),
-              Color(0xFFFD746C),
+               Color(0xFF6D53F4),
+              Color(0xFF6D53F4),
+              Color(0xFF6D53F4),
             ],
           ),
         ),
