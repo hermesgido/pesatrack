@@ -23,6 +23,20 @@ class AppThemes {
 
   static final darkTheme = ThemeData(
     primaryColor: const Color(0xFF6D53F4),
+    colorScheme: const ColorScheme(
+      secondary: Color(0xFFEE600D),
+      brightness: Brightness.dark,
+      primary: Color(0xFF6D53F4),
+      onPrimary: Color(0xFFEE600D),
+      onSecondary: Color(0xFFEE600D),
+      error: Colors.red,
+      onError: Colors.red,
+      background: Color(0xFF1F1F1F),
+      onBackground: Colors.white,
+      surface: Color(0xFF1F1F1F),
+      onSurface: Colors.white,
+      
+    ),
     brightness: Brightness.dark,
     scaffoldBackgroundColor: const Color(0xFF121212),
     appBarTheme: const AppBarTheme(

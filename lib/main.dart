@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pesatrack/providers/authprovider.dart';
+import 'package:pesatrack/providers/transactions_provider.dart';
 import 'package:pesatrack/screens/auth/login.dart';
 import 'package:pesatrack/screens/home_page.dart';
 import 'package:pesatrack/screens/settings/profile_screen.dart';
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
+import 'package:pesatrack/utils/loading_indicator.dart';
 import 'package:pesatrack/utils/theme.dart';
 import 'package:pesatrack/widgets/bottom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +16,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => TransactionsProvider())
       ],
       child: const MyApp(),
     ),
@@ -32,7 +35,8 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     // Check if the user is authenticated
-    Provider.of<AuthProvider>(context, listen: false).checkAuthentication(context);
+    Provider.of<AuthProvider>(context, listen: false)
+        .checkAuthentication(context);
   }
 
   @override
@@ -43,6 +47,21 @@ class _MyAppState extends State<MyApp> {
     ));
 
     final authProvider = Provider.of<AuthProvider>(context);
+    final trans = Provider.of<TransactionsProvider>(context);
+
+    if (authProvider.isLoading) {
+      trans.fetchTransactions();
+      trans.fetchTransactionsHomePage();
+      // Show loading screen while authentication check is in progress
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: LoadingScreen(),
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+      );
+    }
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -95,12 +114,12 @@ class _MainPageState extends State<MainPage> {
 
   void _onNavBarTapped(int index) {
     if (index == 2) {
-      showAddExpenseModal(context);
+      showAddTransactionModal(context);
     } else {
       _pageController.animateToPage(
         index,
-        duration: const Duration(milliseconds: 1), // Adjust duration
-        curve: Curves.easeInOut, // Adjust curve for different effects
+        duration: const Duration(milliseconds: 1),
+        curve: Curves.easeInOut, 
       );
       setState(() {
         _currentIndex = index;
@@ -154,13 +173,25 @@ class _MainPageState extends State<MainPage> {
         indexSelected: _currentIndex,
         isFloating: true,
         highlightStyle: HighlightStyle(
-          color: Theme.of(context).primaryColor,
+          color: Theme.of(context).colorScheme.secondary,
           isHexagon: true,
           elevation: 2,
         ),
         onTap: (int index) {
           _onNavBarTapped(index);
         },
+      ),
+    );
+  }
+}
+
+class LoadingScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF1F1F1F),
+      body: Center(
+        child: customLoadingIndicator(context),
       ),
     );
   }

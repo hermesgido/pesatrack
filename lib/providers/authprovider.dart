@@ -14,6 +14,9 @@ class AuthProvider with ChangeNotifier {
   bool get isAuthenticated => _isAuthenticated;
 
   Future<void> checkAuthentication(BuildContext context) async {
+    _isLoading = true;
+    // notifyListeners();
+
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
@@ -34,17 +37,18 @@ class AuthProvider with ChangeNotifier {
         // Token is invalid or expired
         _isAuthenticated = false;
         prefs.remove('token'); // Optionally remove the token if invalid
-        // WidgetsBinding.instance.addPostFrameCallback((_) {
-        //   Navigator.of(context).pushAndRemoveUntil(
-        //     MaterialPageRoute(builder: (context) => const LoginPage()),
-        //     (Route<dynamic> route) => false,
-        //   );
-        // });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+            (Route<dynamic> route) => false,
+          );
+        });
       }
     } else {
       _isAuthenticated = false;
     }
 
+    _isLoading = false;
     notifyListeners();
   }
 

@@ -74,7 +74,7 @@ class LogoutBottomSheetWidget extends StatelessWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => LoginPage()));
+                                  builder: (context) => const LoginPage()));
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -90,7 +90,7 @@ class LogoutBottomSheetWidget extends StatelessWidget {
                             style: GoogleFonts.inter(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
-                                color: theme.textTheme.button!.color),
+                                color: theme.textTheme.labelLarge!.color),
                           ),
                         ),
                       ),
