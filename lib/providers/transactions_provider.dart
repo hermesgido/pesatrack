@@ -38,14 +38,14 @@ class TransactionsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> createTransaction(
-      {required String name,
-      required double amount,
-      required String date,
-      required String category,
-      required String description, 
-      required transactionType,
-      }) async {
+  Future<void> createTransaction({
+    required String name,
+    required double amount,
+    required String date,
+    required String category,
+    required String description,
+    required transactionType,
+  }) async {
     _isLoading = true;
     notifyListeners();
     try {
@@ -105,6 +105,8 @@ class TransactionsProvider with ChangeNotifier {
       final response = await _apiService.deleteTransaction(id);
       if (response.statusCode == 204) {
         _transactions.removeWhere((t) => t.id == id);
+        await fetchTransactionsHomePage();
+        notifyListeners();
       } else {
         _handleError(response);
       }

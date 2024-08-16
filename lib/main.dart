@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pesatrack/providers/authprovider.dart';
 import 'package:pesatrack/providers/transactions_provider.dart';
+import 'package:pesatrack/screens/analytics/track_page.dart';
 import 'package:pesatrack/screens/auth/login.dart';
 import 'package:pesatrack/screens/home_page.dart';
 import 'package:pesatrack/screens/settings/profile_screen.dart';
@@ -89,6 +90,8 @@ class _MainPageState extends State<MainPage> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -119,7 +122,7 @@ class _MainPageState extends State<MainPage> {
       _pageController.animateToPage(
         index,
         duration: const Duration(milliseconds: 1),
-        curve: Curves.easeInOut, 
+        curve: Curves.easeInOut,
       );
       setState(() {
         _currentIndex = index;
@@ -153,13 +156,14 @@ class _MainPageState extends State<MainPage> {
     ];
 
     return Scaffold(
+      key: _scaffoldKey,
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,
         physics: const NeverScrollableScrollPhysics(), // Disable swiping
         children: [
-          HomeScreen(),
-          const Center(child: Text('Total Balance Page')),
+          const HomeScreen(),
+          TrackTransactionsPage(),
           HomeScreen(), // Keep the current page active instead of showing an empty page
           const Center(child: Text('Last Transactions Page')),
           ProfileScreen()

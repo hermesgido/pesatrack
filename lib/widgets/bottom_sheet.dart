@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:pesatrack/providers/transactions_provider.dart';
 import 'package:pesatrack/services/apiservice.dart';
 import 'package:provider/provider.dart';
+
 void showAddTransactionModal(BuildContext context) {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -241,6 +242,9 @@ class _SimpleDropdownState extends State<SimpleDropdown> {
           right: BorderSide(color: Colors.white),
         ),
         expandedFillColor: Theme.of(context).colorScheme.background,
+        searchFieldDecoration: SearchFieldDecoration(
+          fillColor: Theme.of(context).colorScheme.background,
+        ),
       ),
       hintText: 'Select job role',
       items: _list,
@@ -333,6 +337,9 @@ class _SearchDropdownState extends State<SearchDropdown> {
           right: BorderSide(color: Colors.white),
         ),
         expandedFillColor: Theme.of(context).colorScheme.background,
+        searchFieldDecoration: SearchFieldDecoration(
+          fillColor: Theme.of(context).colorScheme.background,
+        ),
       ),
       hintText: 'Select Category',
       items: _list,

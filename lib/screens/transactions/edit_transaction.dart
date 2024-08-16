@@ -3,15 +3,13 @@ import 'dart:developer';
 
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:pesatrack/models/transaction.dart';
 import 'package:pesatrack/providers/transactions_provider.dart';
 import 'package:pesatrack/services/apiservice.dart';
-import 'package:pesatrack/utils/capitalize.dart';
-import 'package:pesatrack/widgets/bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:panara_dialogs/panara_dialogs.dart';
 
 class EditTransactionScreen extends StatefulWidget {
   final Transaction transaction;
@@ -55,24 +53,40 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
   }
 
   Future<void> _deleteTransaction() async {
-    final shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Transaction'),
-        content:
-            const Text('Are you sure you want to delete this transaction?'),
-        actions: [
-          TextButton(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.of(context).pop(false),
-          ),
-          TextButton(
-            child: const Text('Delete'),
-            onPressed: () => Navigator.of(context).pop(true),
-          ),
-        ],
-      ),
+    final shouldDelete = await PanaraConfirmDialog.showAnimatedGrow(
+      context,
+      margin: const EdgeInsets.all(20),
+      message: "Are you sure you want to delete this transaction?",
+      confirmButtonText: "Confirm",
+      cancelButtonText: "Cancel",
+      onTapCancel: () {
+        Navigator.of(context).pop(false);
+      },
+      onTapConfirm: () {
+        Navigator.of(context).pop(true);
+      },
+      panaraDialogType: PanaraDialogType.error,
     );
+
+    // Future<void> _deleteTransaction() async {
+    //   final shouldDelete = await showDialog<bool>(
+    //     context: context,
+    //     builder: (context) => AlertDialog(
+    //       title: const Text('Delete Transaction'),
+    //       content:
+    //           const Text('Are you sure you want to delete this transaction?'),
+    //       actions: [
+    //         TextButton(
+    //           child: const Text('Cancel'),
+    //           onPressed: () => Navigator.of(context).pop(false),
+    //         ),
+    //         TextButton(
+    //           child: const Text('Delete'),
+    //           onPressed: () => Navigator.of(context).pop(true),
+    //         ),
+    //       ],
+    //     ),
+    //   );
 
     if (shouldDelete == true) {
       try {

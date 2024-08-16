@@ -21,6 +21,14 @@ class HomeTopCard extends StatefulWidget {
 class _HomeTopCardState extends State<HomeTopCard> {
   String filterOption = "Today";
 
+  final List<String> filterOptions = [
+    'Today',
+    'Yesterday',
+    'This Week',
+    'This Month',
+    'This Year'
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -52,9 +60,11 @@ class _HomeTopCardState extends State<HomeTopCard> {
     }
   }
 
-  void _filterSummary(String selectedFilter) {
+  void _filterSummary(String? selectedFilter) {
     setState(() {
-      filterOption = selectedFilter;
+      if (selectedFilter != null) {
+        filterOption = selectedFilter;
+      }
     });
   }
 
@@ -100,27 +110,54 @@ class _HomeTopCardState extends State<HomeTopCard> {
                                 ),
                               ],
                             ),
-                            PopupMenuButton<String>(
-                              icon: const Icon(
-                                Icons.more_vert_outlined,
-                                color: Colors.white,
+
+                            DropdownButton<String>(
+                              dropdownColor:
+                                  widget.theme.colorScheme.background,
+                              value: filterOption,
+                              icon: Icon(
+                                Icons.arrow_drop_down,
+                                color: widget.theme.colorScheme.secondary,
                               ),
-                              onSelected: _filterSummary,
-                              itemBuilder: (BuildContext context) {
-                                return [
-                                  'Today',
-                                  'Yesterday',
-                                  'This Week',
-                                  'This Month',
-                                  'This Year'
-                                ].map((String choice) {
-                                  return PopupMenuItem<String>(
-                                    value: choice,
-                                    child: Text(choice),
-                                  );
-                                }).toList();
-                              },
-                            )
+                              underline: Container(
+                                height: 0,
+                              ),
+                              onChanged: _filterSummary,
+                              items: filterOptions
+                                  .map<DropdownMenuItem<String>>(
+                                      (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    style: widget.textTheme.bodyMedium!
+                                        .copyWith(color: Colors.white),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+
+                            // PopupMenuButton<String>(
+                            //   icon: const Icon(
+                            //     Icons.more_vert_outlined,
+                            //     color: Colors.white,
+                            //   ),
+                            //   onSelected: _filterSummary,
+                            //   itemBuilder: (BuildContext context) {
+                            //     return [
+                            //       'Today',
+                            //       'Yesterday',
+                            //       'This Week',
+                            //       'This Month',
+                            //       'This Year'
+                            //     ].map((String choice) {
+                            //       return PopupMenuItem<String>(
+                            //         value: choice,
+                            //         child: Text(choice),
+                            //       );
+                            //     }).toList();
+                            //   },
+                            // )
                           ],
                         ),
                         const SizedBox(height: 20),

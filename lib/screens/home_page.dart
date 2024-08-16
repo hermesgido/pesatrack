@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pesatrack/models/transaction.dart';
 import 'package:pesatrack/screens/transactions/edit_transaction.dart';
 import 'package:pesatrack/utils/capitalize.dart';
@@ -11,6 +10,8 @@ import 'package:pesatrack/widgets/homepage/top_card.dart';
 import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
