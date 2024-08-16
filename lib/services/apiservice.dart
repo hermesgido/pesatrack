@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:pesatrack/models/year_summary_model.dart';
 import 'package:pesatrack/utils/urls.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -164,8 +165,8 @@ class ApiService {
     return response;
   }
 
-  Future<http.Response> createTransaction(
-      double amount, String date, String category, String description, transactionType) async {
+  Future<http.Response> createTransaction(double amount, String date,
+      String category, String description, transactionType) async {
     final body = jsonEncode({
       'amount': amount,
       'transaction_date': date,
@@ -262,4 +263,18 @@ class ApiService {
   }
 
   // Shared Preferences for Storing JWT Token
+
+  Future<YearSummary> getYearSummary(int year) async {
+    final response = await http.get(Uri.parse('$baseUrl/api/year-summary/2024'));
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      print(response);
+      print("Unanona sasaaaaaaaaaaa");
+      // Parse the JSON data into your model
+      return YearSummary.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load year summary');
+    }
+  }
 }

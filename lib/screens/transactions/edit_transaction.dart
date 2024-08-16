@@ -14,7 +14,7 @@ import 'package:panara_dialogs/panara_dialogs.dart';
 class EditTransactionScreen extends StatefulWidget {
   final Transaction transaction;
 
-  EditTransactionScreen({required this.transaction});
+  const EditTransactionScreen({super.key, required this.transaction});
 
   @override
   _EditTransactionScreenState createState() => _EditTransactionScreenState();

@@ -17,7 +17,7 @@ class TransactionsProvider with ChangeNotifier {
 
   Future<void> fetchTransactions() async {
     _isLoading = true;
-    // notifyListeners();
+    notifyListeners();
     print("jeeeeeeeeeeeeeeeeeee");
     try {
       // await Future.delayed(Duration(minutes: 1));

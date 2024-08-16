@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pesatrack/models/transaction.dart';
+import 'package:pesatrack/providers/year_summary_provider.dart';
+import 'package:pesatrack/screens/transactions/all_transactions.dart';
 import 'package:pesatrack/screens/transactions/edit_transaction.dart';
 import 'package:pesatrack/utils/capitalize.dart';
 import 'package:pesatrack/utils/loading_indicator.dart';
@@ -18,20 +20,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
-  @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // print("eeeeeeeeeeeeeeeeeeeeeeeeee");
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider =
           Provider.of<TransactionsProvider>(context, listen: false);
       provider.fetchTransactions();
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // print("eeeeeeeeeeeeeeeeeeeeeeeeee");
 
     // if (!provider.isLoading && provider.transactions.isEmpty) {}
     final theme = Theme.of(context);
@@ -93,10 +93,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    "See all",
-                    style: textTheme.bodyMedium!
-                        .copyWith(color: theme.primaryColor),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        return AllTransactions();
+                      }));
+                    },
+                    child: Text(
+                      "See all",
+                      style: textTheme.bodyMedium!
+                          .copyWith(color: theme.primaryColor),
+                    ),
                   ),
                 ],
               ),
