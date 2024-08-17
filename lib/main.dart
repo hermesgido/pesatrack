@@ -34,6 +34,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+ final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
+      GlobalKey<ScaffoldMessengerState>();
   @override
   void initState() {
     super.initState();
@@ -61,6 +63,7 @@ class _MyAppState extends State<MyApp> {
       // Show loading screen while authentication check is in progress
       return MaterialApp(
         debugShowCheckedModeBanner: false,
+        scaffoldMessengerKey: rootScaffoldMessengerKey,
         home: LoadingScreen(),
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -96,6 +99,8 @@ class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+ 
+
 
   @override
   void initState() {

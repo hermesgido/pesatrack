@@ -7,23 +7,29 @@ import 'package:pesatrack/providers/transactions_provider.dart';
 import 'package:pesatrack/services/apiservice.dart';
 import 'package:provider/provider.dart';
 
+import 'dart:convert';
+import 'dart:developer';
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:pesatrack/providers/transactions_provider.dart';
+import 'package:pesatrack/services/apiservice.dart';
+import 'package:provider/provider.dart';
+
 void showAddTransactionModal(BuildContext context) {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   Job? _selectedCategory;
-  String _selectedType = "Expense"; // Initialize with default value
+  String _selectedType = "Expense";
+  bool _isLoading = false;
 
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    transitionAnimationController: AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: Navigator.of(context),
-    ),
     backgroundColor: Colors.transparent,
-    isDismissible: true,
     builder: (BuildContext context) {
       return GestureDetector(
         onTap: () {
@@ -52,154 +58,211 @@ void showAddTransactionModal(BuildContext context) {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Add Transaction',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Add Transaction',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            SimpleDropdown(
-                              onTypeSelected: (String? selectedType) {
-                                setState(() {
-                                  _selectedType = selectedType ?? "Expense";
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            TextField(
-                              controller: _descriptionController,
-                              decoration: InputDecoration(
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
+                              const SizedBox(height: 16),
+                              SimpleDropdown(
+                                onTypeSelected: (String? selectedType) {
+                                  setState(() {
+                                    _selectedType = selectedType ?? "Expense";
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _descriptionController,
+                                decoration: InputDecoration(
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                    ),
+                                  ),
+                                  labelText: 'Description',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
                                   ),
                                 ),
-                                labelText: 'Description',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a description';
+                                  }
+                                  return null;
+                                },
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            TextField(
-                              controller: _amountController,
-                              decoration: InputDecoration(
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _amountController,
+                                decoration: InputDecoration(
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                    ),
+                                  ),
+                                  labelText: _selectedType == "Expense"
+                                      ? 'Expense Amount'
+                                      : 'Income Amount',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
                                   ),
                                 ),
-                                labelText: _selectedType == "Expense"
-                                    ? 'Expense Amount'
-                                    : 'Income Amount',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
+                                keyboardType: TextInputType.number,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter an amount';
+                                  }
+                                  if (double.tryParse(value) == null) {
+                                    return 'Please enter a valid number';
+                                  }
+                                  return null;
+                                },
                               ),
-                              keyboardType: TextInputType.number,
-                            ),
-                            const SizedBox(height: 16),
-                            SearchDropdown(
-                              onCategorySelected: (Job? selectedCategory) {
-                                setState(() {
-                                  _selectedCategory = selectedCategory;
-                                  log('Selected category: ${_selectedCategory?.name} (ID: ${_selectedCategory?.id})');
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            TextField(
-                              controller: _dateController,
-                              decoration: InputDecoration(
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
+                              const SizedBox(height: 16),
+                              SearchDropdown(
+                                onCategorySelected: (Job? selectedCategory) {
+                                  setState(() {
+                                    _selectedCategory = selectedCategory;
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _dateController,
+                                decoration: InputDecoration(
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                    ),
                                   ),
+                                  labelText: 'Date',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  suffixIcon: const Icon(Icons.calendar_today),
                                 ),
-                                labelText: 'Date',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                suffixIcon: const Icon(Icons.calendar_today),
-                              ),
-                              readOnly: true,
-                              onTap: () async {
-                                DateTime? selectedDate = await showDatePicker(
-                                  context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime(2000),
-                                  lastDate: DateTime(2100),
-                                );
+                                readOnly: true,
+                                onTap: () async {
+                                  DateTime? selectedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime(2100),
+                                  );
 
-                                if (selectedDate != null) {
-                                  _dateController.text =
-                                      "${selectedDate.toLocal()}".split(' ')[0];
-                                }
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  if (_selectedType.isNotEmpty &&
-                                      _amountController.text.isNotEmpty &&
-                                      _dateController.text.isNotEmpty &&
-                                      _selectedCategory != null) {
-                                    final transactionProvider =
-                                        Provider.of<TransactionsProvider>(
-                                            context,
-                                            listen: false);
-
-                                    try {
-                                      await transactionProvider
-                                          .createTransaction(
-                                        transactionType:
-                                            _selectedType.toLowerCase(),
-                                        name: _nameController.text,
-                                        amount: double.parse(
-                                            _amountController.text),
-                                        date: _dateController.text,
-                                        description:
-                                            _descriptionController.text,
-                                        category: _selectedCategory!.id,
-                                      );
-                                      Navigator.of(context).pop();
-                                    } catch (e) {
-                                      log('Failed to add transaction: $e');
-                                    }
-                                  } else {
-                                    log('Please fill all required fields');
+                                  if (selectedDate != null) {
+                                    _dateController.text =
+                                        "${selectedDate.toLocal()}"
+                                            .split(' ')[0];
                                   }
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF6D53F4),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please select a date';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: _isLoading
+                                      ? null
+                                      : () async {
+                                          if (_formKey.currentState!
+                                              .validate()) {
+                                            final transactionProvider = Provider
+                                                .of<TransactionsProvider>(
+                                                    context,
+                                                    listen: false);
+
+                                            if (_selectedCategory != null) {
+                                              setState(() {
+                                                _isLoading = true;
+                                              });
+                                              try {
+                                                await transactionProvider
+                                                    .createTransaction(
+                                                  transactionType: _selectedType
+                                                      .toLowerCase(),
+                                                  name: _nameController.text,
+                                                  amount: double.parse(
+                                                      _amountController.text),
+                                                  date: _dateController.text,
+                                                  description:
+                                                      _descriptionController
+                                                          .text,
+                                                  category:
+                                                      _selectedCategory!.id,
+                                                );
+                                                Navigator.of(context).pop();
+                                              } catch (e) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                        'Failed to add transaction: $e'),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
+                                              } finally {
+                                                setState(() {
+                                                  _isLoading = false;
+                                                });
+                                              }
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      'Please select a category'),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                            }
+                                          }
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF6D53F4),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
                                   ),
-                                ),
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 15),
-                                  child: Text(
-                                    'Add ${_selectedType}',
-                                    style: GoogleFonts.inter(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white),
-                                  ),
+                                  child: _isLoading
+                                      ? const CircularProgressIndicator(
+                                          color: Colors.white,
+                                        )
+                                      : Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 15),
+                                          child: Text(
+                                            'Add $_selectedType',
+                                            style: GoogleFonts.inter(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
