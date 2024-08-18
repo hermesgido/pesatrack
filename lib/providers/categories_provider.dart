@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:pesatrack/models/category.dart';
 import 'package:pesatrack/services/apiservice.dart';
 
 class CategoryProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
 
-  List<dynamic> _categories = [];
+  List<Category> _categories = [];
   bool _isLoading = false;
 
-  List<dynamic> get categories => _categories;
+  List<Category> get categories => _categories;
   bool get isLoading => _isLoading;
 
   // Function to load categories from the API
@@ -18,9 +19,11 @@ class CategoryProvider with ChangeNotifier {
 
     try {
       final response = await _apiService.getCategories();
+      _categories.clear();
       if (response.statusCode == 200) {
-        _categories = jsonDecode(response.body);
-        print(_categories);
+        for (var element in jsonDecode(response.body)) {
+          _categories.add(Category.fromJson(element));
+        }
       } else {
         // Handle error
         throw Exception('Failed to load categories');
@@ -34,14 +37,15 @@ class CategoryProvider with ChangeNotifier {
   }
 
   // Function to add a new category
-  Future<void> addCategory(String name) async {
+  Future<void> addCategory(String name, String selectedCategoryType) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final response = await _apiService.createCategory(name);
+      final response = await _apiService.createCategory(name, selectedCategoryType);
+      print(response.body);
       if (response.statusCode == 201) {
-        _categories.add(jsonDecode(response.body));
+        _categories.add(Category.fromJson(jsonDecode(response.body)));
       } else {
         // Handle error
         throw Exception('Failed to add category');
@@ -61,8 +65,9 @@ class CategoryProvider with ChangeNotifier {
 
     try {
       final response = await _apiService.deleteCategory(id);
+      print(response.body);
       if (response.statusCode == 204) {
-        _categories.removeWhere((category) => category['id'] == id);
+        _categories.removeWhere((category) => category.id == id);
       } else {
         // Handle error
         throw Exception('Failed to delete category');
@@ -76,14 +81,14 @@ class CategoryProvider with ChangeNotifier {
   }
 
   // Function to update a category
-  Future<void> updateCategory(int id, String name) async {
+  Future<void> updateCategory(int id, String name, String selectedCategoryType) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final response = await _apiService.updateCategory(id, name);
+      final response = await _apiService.updateCategory(id, name, selectedCategoryType);
       if (response.statusCode == 200) {
-        int index = _categories.indexWhere((category) => category['id'] == id);
+        int index = _categories.indexWhere((category) => category.id == id);
         if (index != -1) {
           _categories[index] = jsonDecode(response.body);
         }

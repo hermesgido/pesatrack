@@ -67,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             : const AssetImage("assets/avator.png")
                                 as ImageProvider,
                         backgroundColor: theme.colorScheme.secondary,
-                        radius: 50,
+                        radius: 30,
                       ),
                     ),
                     const SizedBox(height: 7),
@@ -100,7 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: 45,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(50),
-                        color: theme.colorScheme.secondary,
+                        color: Colors.white,
                       ),
                       child: const Icon(Icons.shield),
                     ),
@@ -141,7 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => HomeScreen()));
+                                builder: (context) => const HomeScreen()));
                       },
                       child: ProfileSettingItem(
                         iconName: Icons.person_outline,
@@ -153,7 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => HomeScreen()));
+                                builder: (context) => const HomeScreen()));
                       },
                       child: ProfileSettingItem(
                         iconName: Icons.payment_outlined,
@@ -174,8 +174,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => HomeScreen()));
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => const HomeScreen()));
                       },
                       child: ProfileSettingItem(
                         iconName: Icons.lock_open_outlined,
@@ -188,7 +188,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           context: context,
                           builder: (BuildContext context) {
                             return Container(
-                              child: LogoutBottomSheetWidget(),
+                              child: const LogoutBottomSheetWidget(),
                             );
                           },
                         );
@@ -223,7 +223,11 @@ class ProfileSettingItem extends StatelessWidget {
     return Column(
       children: [
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+          margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 3),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+          decoration: BoxDecoration(
+              color: Theme.of(context).canvasColor,
+              borderRadius: BorderRadius.circular(8)),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -254,11 +258,11 @@ class ProfileSettingItem extends StatelessWidget {
             ],
           ),
         ),
-        Container(
-          height: 1,
-          margin: const EdgeInsets.symmetric(horizontal: 35),
-          color: theme.dividerColor,
-        ),
+        // Container(
+        //   height: 1,
+        //   margin: const EdgeInsets.symmetric(horizontal: 35),
+        //   color: theme.dividerColor,
+        // ),
       ],
     );
   }

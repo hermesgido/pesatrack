@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pesatrack/providers/authprovider.dart';
+import 'package:pesatrack/providers/budgets_provider.dart';
+import 'package:pesatrack/providers/categories_provider.dart';
 import 'package:pesatrack/providers/transactions_provider.dart';
 import 'package:pesatrack/providers/year_summary_provider.dart';
 import 'package:pesatrack/screens/analytics/track_page.dart';
 import 'package:pesatrack/screens/auth/login.dart';
 import 'package:pesatrack/screens/home_page.dart';
+import 'package:pesatrack/screens/morepages/more_pages.dart';
 import 'package:pesatrack/screens/settings/profile_screen.dart';
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:pesatrack/utils/loading_indicator.dart';
@@ -19,7 +22,9 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => TransactionsProvider()),
-        ChangeNotifierProvider(create: (_)=>YearSummaryProvider())
+        ChangeNotifierProvider(create: (_) => YearSummaryProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => BudgetProvider()),
       ],
       child: const MyApp(),
     ),
@@ -34,7 +39,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
- final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
+  final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
   @override
   void initState() {
@@ -99,8 +104,6 @@ class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
- 
-
 
   @override
   void initState() {
@@ -174,14 +177,14 @@ class _MainPageState extends State<MainPage> {
         children: [
           const HomeScreen(),
           TrackTransactionsPage(),
-          HomeScreen(), // Keep the current page active instead of showing an empty page
-          const Center(child: Text('Last Transactions Page')),
+          const HomeScreen(), // Keep the current page active instead of showing an empty page
+          const MorePages(),
           ProfileScreen()
         ],
       ),
       bottomNavigationBar: BottomBarCreative(
         items: items,
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Theme.of(context).colorScheme.background,
         color: Colors.grey,
         colorSelected: Colors.white,
         indexSelected: _currentIndex,
@@ -200,7 +203,7 @@ class _MainPageState extends State<MainPage> {
 }
 
 class LoadingScreen extends StatelessWidget {
-  LoadingScreen({super.key});
+  const LoadingScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -231,7 +234,7 @@ class _PinEntryScreenState extends State<PinEntryScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(
+              const Text(
                 'Enter PIN Code',
                 style: TextStyle(
                   color: Colors.white,
@@ -239,9 +242,9 @@ class _PinEntryScreenState extends State<PinEntryScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildPinInput(),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildNumberPad(),
             ],
           ),
@@ -258,16 +261,16 @@ class _PinEntryScreenState extends State<PinEntryScreen> {
         obscureText: true,
         maxLength: _pinLength,
         keyboardType: TextInputType.number,
-        style: TextStyle(color: Colors.white, fontSize: 24),
+        style: const TextStyle(color: Colors.white, fontSize: 24),
         decoration: InputDecoration(
           counterText: '',
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Colors.white, width: 2),
+            borderSide: const BorderSide(color: Colors.white, width: 2),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Colors.white, width: 2),
+            borderSide: const BorderSide(color: Colors.white, width: 2),
           ),
           filled: true,
           fillColor: Colors.black,
@@ -285,7 +288,7 @@ class _PinEntryScreenState extends State<PinEntryScreen> {
 
   Widget _buildNumberPad() {
     return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
@@ -316,11 +319,11 @@ class _PinEntryScreenState extends State<PinEntryScreen> {
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
         backgroundColor: Colors.black,
-        shape: CircleBorder(),
+        shape: const CircleBorder(),
       ),
       child: Text(
         number.toString(),
-        style: TextStyle(fontSize: 24),
+        style: const TextStyle(fontSize: 24),
       ),
     );
   }
@@ -336,9 +339,9 @@ class _PinEntryScreenState extends State<PinEntryScreen> {
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.red,
         backgroundColor: Colors.black,
-        shape: CircleBorder(),
+        shape: const CircleBorder(),
       ),
-      child: Icon(Icons.backspace, size: 24),
+      child: const Icon(Icons.backspace, size: 24),
     );
   }
 

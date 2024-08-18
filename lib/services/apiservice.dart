@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:pesatrack/models/budget.dart';
 import 'package:pesatrack/models/year_summary_model.dart';
 import 'package:pesatrack/utils/urls.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -118,15 +119,14 @@ class ApiService {
     return response;
   }
 
-  Future<http.Response> createCategory(String name) async {
+  Future<http.Response> createCategory(
+      String name, String selectedCategoryType) async {
     print(await getToken());
     final response = await http.post(
       Uri.parse('$baseUrl/api/categories/'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${await getToken()}',
-      },
-      body: jsonEncode({'name': name}),
+      headers: await getHeaders(),
+      body: jsonEncode(
+          {'category_name': name, 'category_type': selectedCategoryType}),
     );
     return response;
   }
@@ -139,19 +139,20 @@ class ApiService {
     return response;
   }
 
-  Future<http.Response> updateCategory(int id, String name) async {
+  Future<http.Response> updateCategory(
+      int id, String name, String selectedCategoryType) async {
     final response = await http.put(
       Uri.parse('$baseUrl/api/categories/$id/'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'name': name}),
+      body: jsonEncode({'name': name, 'category_type': selectedCategoryType}),
     );
     return response;
   }
 
   Future<http.Response> deleteCategory(int id) async {
     final response = await http.delete(
-      Uri.parse('$baseUrl/api/categories/$id/'),
-    );
+        Uri.parse('$baseUrl/api/categories/$id/'),
+        headers: await getHeaders());
     return response;
   }
 
@@ -221,51 +222,92 @@ class ApiService {
     return response;
   }
 
-  // List and Create Budgets
+  // // List and Create Budgets
+  // Future<http.Response> getBudgets() async {
+  //   final response = await http.get(
+  //     Uri.parse('$baseUrl/api/budgets/'),
+  //   );
+  //   return response;
+  // }
+
+  // Future<http.Response> createBudget(String name, double amount) async {
+  //   final response = await http.post(
+  //     Uri.parse('$baseUrl/api/budgets/'),
+  //     headers: {'Content-Type': 'application/json'},
+  //     body: jsonEncode({'name': name, 'amount': amount}),
+  //   );
+  //   return response;
+  // }
+
+  // // Retrieve, Update, and Delete Budget
+  // Future<http.Response> getBudget(int id) async {
+  //   final response = await http.get(
+  //     Uri.parse('$baseUrl/api/budgets/$id/'),
+  //   );
+  //   return response;
+  // }
+
+  // Future<http.Response> updateBudget(int id, String name, double amount) async {
+  //   final response = await http.put(
+  //     Uri.parse('$baseUrl/api/budgets/$id/'),
+  //     headers: {'Content-Type': 'application/json'},
+  //     body: jsonEncode({'name': name, 'amount': amount}),
+  //   );
+  //   return response;
+  // }
+
+  // Future<http.Response> deleteBudget(int id) async {
+  //   final response = await http.delete(
+  //     Uri.parse('$baseUrl/api/budgets/$id/'),
+  //   );
+  //   return response;
+  // }
+
+  // Future<String?> getToken() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   return prefs.getString('token');
+  // }
+
   Future<http.Response> getBudgets() async {
-    final response = await http.get(
+    return await http.get(Uri.parse('$baseUrl/api/budgets/'),
+        headers: await getHeaders());
+  }
+
+  Future<http.Response> createBudget([Budget? budget]) async {
+    print("object");
+    print(budget!.endDate);
+    print(budget.startDate);
+    print("object");
+    return await http.post(
       Uri.parse('$baseUrl/api/budgets/'),
+      headers: await getHeaders(),
+      body: jsonEncode({
+        "start_data": budget.startDate.toString(),
+        "end_date": budget.endDate.toString(),
+        "amount": budget.amount
+      }),
     );
-    return response;
   }
 
-  Future<http.Response> createBudget(String name, double amount) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/api/budgets/'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'name': name, 'amount': amount}),
-    );
-    return response;
-  }
-
-  // Retrieve, Update, and Delete Budget
-  Future<http.Response> getBudget(int id) async {
-    final response = await http.get(
+  Future<http.Response> updateBudget(
+      int id, Map<String, dynamic> budgetData) async {
+    return await http.put(
       Uri.parse('$baseUrl/api/budgets/$id/'),
+      headers: await getHeaders(),
+      body: jsonEncode(budgetData),
     );
-    return response;
-  }
-
-  Future<http.Response> updateBudget(int id, String name, double amount) async {
-    final response = await http.put(
-      Uri.parse('$baseUrl/api/budgets/$id/'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'name': name, 'amount': amount}),
-    );
-    return response;
   }
 
   Future<http.Response> deleteBudget(int id) async {
-    final response = await http.delete(
-      Uri.parse('$baseUrl/api/budgets/$id/'),
-    );
-    return response;
+    return await http.delete(Uri.parse('$baseUrl/api/budgets/$id/'),
+        headers: await getHeaders());
   }
 
   // Shared Preferences for Storing JWT Token
 
   Future<YearSummary> getYearSummary(int year) async {
-    final response = await http.get(Uri.parse('$baseUrl/api/year-summary/2024'));
+    final response =
+        await http.get(Uri.parse('$baseUrl/api/year-summary/2024'));
     print(response.body);
 
     if (response.statusCode == 200) {
