@@ -278,13 +278,21 @@ class ApiService {
     print(budget!.endDate);
     print(budget.startDate);
     print("object");
+    print('$baseUrl/api/budgets/');
+    print(jsonEncode({
+      "start_date": budget.startDate.toString(),
+      "end_date": budget.endDate.toString(),
+      "amount": budget.amount,
+      "name": budget.budgetName
+    }));
     return await http.post(
       Uri.parse('$baseUrl/api/budgets/'),
       headers: await getHeaders(),
       body: jsonEncode({
-        "start_data": budget.startDate.toString(),
+        "start_date": budget.startDate.toString(),
         "end_date": budget.endDate.toString(),
-        "amount": budget.amount
+        "amount": budget.amount,
+        "name": budget.budgetName
       }),
     );
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pesatrack/models/category.dart';
 import 'package:pesatrack/providers/year_summary_provider.dart';
+import 'package:pesatrack/utils/capitalize.dart';
 import 'package:pesatrack/utils/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:pesatrack/models/transaction.dart';
@@ -42,6 +44,18 @@ class _AllTransactionsState extends State<AllTransactions> {
 
     final transactionsByDate = transactionProvider.transactionsByDate;
     final hasTransactions = transactionsByDate.isNotEmpty;
+
+    // Format amount
+    String totalExpenseFormatted =
+        "Tsh ${NumberFormat('#,##0').format(transactionProvider.totalExpenses)}";
+    String totalIncomFormatted =
+        "Tsh ${NumberFormat('#,##0').format(transactionProvider.totalIncome)}";
+
+    String totalBalanceFormatted =
+        "Tsh ${NumberFormat('#,##0').format(transactionProvider.balance)}";
+    DateFormat dateFormat = DateFormat('MMM d, EEE'); // Example: Aug 23, Mon
+
+    // String formattedDate = dateFormat.format(DateTime.parse(time));
 
     return Scaffold(
       body: SafeArea(
@@ -110,7 +124,7 @@ class _AllTransactionsState extends State<AllTransactions> {
                             const Text("EXPENSES",
                                 style: TextStyle(color: Colors.white)),
                             Text(
-                              "Tsh ${transactionProvider.totalExpenses}",
+                              totalExpenseFormatted,
                               style: const TextStyle(
                                   color: Colors.red,
                                   fontWeight: FontWeight.bold),
@@ -123,7 +137,7 @@ class _AllTransactionsState extends State<AllTransactions> {
                             const Text("INCOME",
                                 style: TextStyle(color: Colors.white)),
                             Text(
-                              "Tsh ${transactionProvider.totalIncome}",
+                              totalIncomFormatted,
                               style: const TextStyle(
                                   color: Colors.green,
                                   fontWeight: FontWeight.bold),
@@ -136,7 +150,7 @@ class _AllTransactionsState extends State<AllTransactions> {
                             const Text("TOTAL",
                                 style: TextStyle(color: Colors.white)),
                             Text(
-                              "Tsh ${transactionProvider.balance}",
+                              totalBalanceFormatted,
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             ),
@@ -156,23 +170,32 @@ class _AllTransactionsState extends State<AllTransactions> {
                         children: transactionsByDate.entries.map((entry) {
                           final date = entry.key;
                           final transactionGroup = entry.value;
+                          String totalIncome =
+                              "+ Tsh ${NumberFormat('#,##0').format(transactionGroup.totalIncome)}";
+
+                          String totalExpense =
+                              "+ Tsh ${NumberFormat('#,##0').format(transactionGroup.totalExpenses)}";
+
+                          DateFormat dateFormat =
+                              DateFormat('MMM d, EEE'); // Example: Aug 23, Mon
+
+                          String formattedDate =
+                              dateFormat.format(DateTime.parse(date));
 
                           return Column(
                             children: [
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text("Date: $date "),
+                                  Text("$formattedDate "),
                                   Row(
                                     children: [
                                       const Icon(Icons.arrow_upward_outlined,
                                           color: Colors.green),
-                                      Text(
-                                          " ${transactionGroup.totalIncome} Tsh"),
+                                      Text(" $totalIncome Tsh"),
                                       const Icon(Icons.arrow_downward_outlined,
                                           color: Colors.red),
-                                      Text(
-                                          " ${transactionGroup.totalExpenses} Tsh"),
+                                      Text(" $totalExpense Tsh"),
                                     ],
                                   ),
                                 ],
@@ -228,6 +251,16 @@ class _AllTransactionsState extends State<AllTransactions> {
   }) {
     final textTheme = Theme.of(context).textTheme;
 
+    double amount2 = double.tryParse(amount) ?? 0.0;
+
+    // Format amount
+    String amountFormatted = "Tsh ${NumberFormat('#,##0').format(amount2)}";
+
+    DateFormat dateFormat = DateFormat('MMM d, EEE'); // Example: Aug 23, Mon
+
+    String formattedDate = dateFormat.format(DateTime.parse(time));
+    final textFormatter = StringModification();
+
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (_) {
@@ -256,12 +289,15 @@ class _AllTransactionsState extends State<AllTransactions> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  textFormatter.capitalizeFirstLetter(title),
                   style: textTheme.bodyLarge!
                       .copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 5),
-                Text(subtitle),
+                Text(
+                  subtitle,
+                  style: const TextStyle(color: Colors.grey),
+                ),
                 const SizedBox(height: 5),
               ],
             ),
@@ -270,9 +306,9 @@ class _AllTransactionsState extends State<AllTransactions> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(time, style: textTheme.bodyMedium),
+                // Text(time, style: textTheme.bodyMedium),
                 Text(
-                  amount,
+                  amountFormatted,
                   style: textTheme.bodyLarge!.copyWith(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,

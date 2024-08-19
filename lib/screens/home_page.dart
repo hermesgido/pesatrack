@@ -127,13 +127,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         final transaction = provider.transactions[index];
 
-                        DateFormat dateFormat = DateFormat(
-                            'yyyy-MM-dd'); // Change the format as needed
+                        // DateFormat dateFormat = DateFormat(
+                        //     'yyyy-MM-dd'); // Change the format as needed
 
-                        String formattedDate = transaction.transactionDate !=
-                                null
-                            ? dateFormat.format(transaction.transactionDate!)
-                            : 'Date not available';
+                        // String formattedDate = transaction.transactionDate !=
+                        //         null
+                        //     ? dateFormat.format(transaction.transactionDate!)
+                        //     : 'Date not available';
 
                         NumberFormat currencyFormat =
                             NumberFormat('#,###', 'en_US');
@@ -143,6 +143,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             double.tryParse(transaction.amount ?? '0') ?? 0.0;
                         String formattedAmount = currencyFormat.format(amount);
 
+                        DateFormat dateFormat =
+                            DateFormat('MMM d, EEE'); // Example: Aug 23, Mon
+
+                        String formattedDate = transaction.transactionDate !=
+                                null
+                            ? dateFormat.format(transaction.transactionDate!)
+                            : 'Date not available';
                         return _buildTransactionCard(
                           context,
                           time: formattedDate,
@@ -251,7 +258,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       .copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 5),
-                Text(subtitle),
+                Text(
+                  subtitle,
+                  style: const TextStyle(color: Colors.grey),
+                ),
                 const SizedBox(height: 5),
               ],
             ),

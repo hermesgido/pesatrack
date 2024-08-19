@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pesatrack/models/transaction_summary.dart';
 import 'package:pesatrack/providers/transactions_provider.dart';
 import 'package:provider/provider.dart';
@@ -101,7 +102,7 @@ class _HomeTopCardState extends State<HomeTopCard> {
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
-                                  "Tsh ${getFilteredSummaryData(summary).totalBalance.toStringAsFixed(0)}",
+                                  "Tsh ${NumberFormat('#,##0').format(getFilteredSummaryData(summary).totalBalance)}",
                                   style:
                                       widget.textTheme.headlineMedium!.copyWith(
                                     color: Colors.white,
@@ -177,7 +178,7 @@ class _HomeTopCardState extends State<HomeTopCard> {
                               ],
                             ),
                             Text(
-                              "+ Tsh ${getFilteredSummaryData(summary).totalIncome.toStringAsFixed(0)}",
+                              "+ Tsh ${NumberFormat('#,##0').format(getFilteredSummaryData(summary).totalIncome)}",
                               style: widget.textTheme.bodyMedium!
                                   .copyWith(color: Colors.white),
                             ),
@@ -194,7 +195,7 @@ class _HomeTopCardState extends State<HomeTopCard> {
                               ],
                             ),
                             Text(
-                              "- Tsh ${getFilteredSummaryData(summary).totalExpense.toStringAsFixed(0)}",
+                              "- Tsh ${NumberFormat('#,##0').format(getFilteredSummaryData(summary).totalExpense)}",
                               style: widget.textTheme.bodyMedium!
                                   .copyWith(color: Colors.white),
                             ),
@@ -224,7 +225,7 @@ class _HomeTopCardState extends State<HomeTopCard> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  "Tsh 000000",
+                  "Tsh 000,000",
                   style: widget.textTheme.headlineMedium!.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -271,7 +272,7 @@ class _HomeTopCardState extends State<HomeTopCard> {
               ],
             ),
             Text(
-              "+ Tsh 00000",
+              "+ Tsh 00,000",
               style: widget.textTheme.bodyMedium!.copyWith(color: Colors.white),
             ),
             Row(
@@ -286,7 +287,7 @@ class _HomeTopCardState extends State<HomeTopCard> {
               ],
             ),
             Text(
-              "- Tsh 00000",
+              "- Tsh 00,000",
               style: widget.textTheme.bodyMedium!.copyWith(color: Colors.white),
             ),
           ],
