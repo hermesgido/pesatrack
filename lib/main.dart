@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:pesatrack/providers/authprovider.dart';
 import 'package:pesatrack/providers/budgets_provider.dart';
 import 'package:pesatrack/providers/categories_provider.dart';
+import 'package:pesatrack/providers/fee_Provider.dart';
 import 'package:pesatrack/providers/transactions_provider.dart';
 import 'package:pesatrack/providers/year_summary_provider.dart';
 import 'package:pesatrack/screens/analytics/track_page.dart';
@@ -25,6 +26,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => YearSummaryProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ChangeNotifierProvider(create: (_) => FeeProvider())
       ],
       child: const MyApp(),
     ),

@@ -327,4 +327,14 @@ class ApiService {
       throw Exception('Failed to load year summary');
     }
   }
+
+  Future<http.Response> calculateMnoFee(Map<String, Object> map) async {
+    final url = Uri.parse('$baseUrl/api/calculate-fee/');
+    return  await http.post(
+      url,
+      headers: await getHeaders(),
+      body: jsonEncode(map),
+    );
+
+  }
 }
