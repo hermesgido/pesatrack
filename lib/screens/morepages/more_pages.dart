@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pesatrack/main.dart';
-import 'package:pesatrack/screens/morepages/budgeting.dart';
+import 'package:pesatrack/screens/morepages/budgets/allbudgets.dart';
 import 'package:pesatrack/screens/morepages/categories.dart';
+import 'package:pesatrack/screens/morepages/forex.dart';
 import 'package:pesatrack/screens/morepages/transfer_charges.dart';
 
 class MorePages extends StatelessWidget {
@@ -44,7 +45,7 @@ class MorePages extends StatelessWidget {
               InkWell(
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return BudgetPage();
+                    return AllBudgets();
                   }));
                 },
                 child: const MoreItem(
@@ -74,6 +75,15 @@ class MorePages extends StatelessWidget {
                   imagePath: "assets/icons/charges.png",
                   name: "Transfer Charges",
                 ),
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    return ForexExchangePage();
+                  }));
+                },
+                child: const MoreItem(
+                    imagePath: "assets/icons/forex.png", name: "Forex"),
               ),
             ],
           ),

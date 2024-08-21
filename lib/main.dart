@@ -4,8 +4,10 @@ import 'package:pesatrack/providers/authprovider.dart';
 import 'package:pesatrack/providers/budgets_provider.dart';
 import 'package:pesatrack/providers/categories_provider.dart';
 import 'package:pesatrack/providers/fee_Provider.dart';
+import 'package:pesatrack/providers/forex_provider.dart';
 import 'package:pesatrack/providers/transactions_provider.dart';
 import 'package:pesatrack/providers/year_summary_provider.dart';
+import 'package:pesatrack/providers/yearly_budget_provider.dart';
 import 'package:pesatrack/screens/analytics/track_page.dart';
 import 'package:pesatrack/screens/auth/login.dart';
 import 'package:pesatrack/screens/home_page.dart';
@@ -26,7 +28,9 @@ void main() {
         ChangeNotifierProvider(create: (_) => YearSummaryProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
-        ChangeNotifierProvider(create: (_) => FeeProvider())
+        ChangeNotifierProvider(create: (_) => FeeProvider()),
+        ChangeNotifierProvider(create: (_) => ExchangeProvider()),
+        ChangeNotifierProvider(create: (_) => YearBudgetSummaryProvider())
       ],
       child: const MyApp(),
     ),

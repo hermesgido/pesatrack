@@ -319,8 +319,6 @@ class ApiService {
     print(response.body);
 
     if (response.statusCode == 200) {
-      print(response);
-      print("Unanona sasaaaaaaaaaaa");
       // Parse the JSON data into your model
       return YearSummary.fromJson(json.decode(response.body));
     } else {
@@ -330,11 +328,34 @@ class ApiService {
 
   Future<http.Response> calculateMnoFee(Map<String, Object> map) async {
     final url = Uri.parse('$baseUrl/api/calculate-fee/');
-    return  await http.post(
+    return await http.post(
       url,
       headers: await getHeaders(),
       body: jsonEncode(map),
     );
+  }
 
+  Future<YearBudgetSummary> getYearlyBudgetSummary(int year) async {
+    final url = Uri.parse('$baseUrl/api/budgets/summary/2024/');
+
+
+final response = await http.get(url, headers: await getHeaders());
+    print(response.body);
+    print("Unanona sasaaaaaaaaaaa");
+            return YearBudgetSummary.fromJson(jsonDecode(response.body));
+
+    // try {
+    //   final response = await http.get(url, headers: await getHeaders());
+    //   print(response.body);
+    //   print("Unanona sasaaaaaaaaaaa");
+
+    //   if (response.statusCode == 200) {
+    //     return YearBudgetSummary.fromJson(jsonDecode(response.body));
+    //   } else {
+    //     throw Exception('Failed to load yearly budget summary');
+    //   }
+    // } catch (e) {
+    //   throw Exception('Error fetching data: $e');
+    // }
   }
 }

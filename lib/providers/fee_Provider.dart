@@ -41,7 +41,7 @@ class FeeProvider extends ChangeNotifier {
           case 'Airtel Money':
             return 'airtel';
           case 'Tigopesa':
-            return 'tigopesa';
+            return 'tigo';
           case 'Halopesa':
             return 'halopesa';
           default:

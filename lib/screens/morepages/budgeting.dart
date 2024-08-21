@@ -48,9 +48,9 @@ class _BudgetPageState extends State<BudgetPage> {
             itemBuilder: (context, index) {
               final budget = budgets[index];
               const spentAmount = 0.0; // Replace with real spent amount
-              final remainingAmount = budget.amount - spentAmount;
-              final progress =
-                  budget.amount > 0 ? spentAmount / budget.amount : 0.0;
+              final remainingAmount = budget.amount! - spentAmount;
+              final progress = 0;
+              // budget.amount! > 0 ? spentAmount / budget.amount : 0.0;
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -75,7 +75,7 @@ class _BudgetPageState extends State<BudgetPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Limit: Tsh ${budget.amount.toStringAsFixed(2)}',
+                            'Limit: Tsh ${budget.amount?.toStringAsFixed(2)}',
                             style: const TextStyle(fontSize: 16),
                           ),
                           Text(
@@ -86,7 +86,7 @@ class _BudgetPageState extends State<BudgetPage> {
                       ),
                       const SizedBox(height: 8),
                       LinearProgressIndicator(
-                        value: progress,
+                        value: progress.toDouble(),
                         backgroundColor: Colors.grey[200],
                         color: Colors.blue,
                       ),
