@@ -1,6 +1,10 @@
+import 'package:pesatrack/models/category.dart';
+
 class Budget {
   final int? id;
-  final double? amount;
+  final String? amount;
+  final Category? category;
+  final String? categoryId;
   final DateTime startDate;
   final DateTime endDate;
   final String? budgetName;
@@ -12,6 +16,8 @@ class Budget {
     required this.amount,
     required this.startDate,
     required this.endDate,
+    this.categoryId,
+    this.category,
     this.budgetName,
     this.amountSpent,
     this.amountRemaining,
@@ -20,85 +26,131 @@ class Budget {
   factory Budget.fromJson(Map<String, dynamic> json) {
     return Budget(
       id: json['id'],
-      amount: double.tryParse(json['amount']),
-      startDate: DateTime.parse(json['start_date'] ?? "2024-01-01"),
+      budgetName: json['name'],
+      category: json['category'] != null ? Category.fromJson(json['category']) : null,
+      amount: json['amount'].toString(),
+      amountSpent: json['amount_spent'].toDouble(),
+      startDate: DateTime.parse(json['start_date']),
       endDate: DateTime.parse(json['end_date']),
-      amountSpent: (json['amount_spent'] as num?)?.toDouble() ?? 0.0,
-      amountRemaining: (json['amount_remaining'] as num?)?.toDouble() ?? 0.0,
-      budgetName: json['name'] ?? "No Name",
     );
   }
 
-  // factory Budget.fromJson(Map<String, dynamic> json) {
-  //   return Budget(
-  //       id: json['id'],
-  //       amount: double.parse(json['amount']),
-  //       startDate: DateTime.parse(json['start_date'] ?? "2024-01-01"),
-  //       endDate: DateTime.parse(json['end_date']),
-  //       amountSpent: double.parse(json['amount_spent'] ?? "0.0"),
-  //       amountRemaining: double.parse(json['amount_remaining'] ?? "0.0"),
-  //       budgetName: json['name'] ?? "No Name");
-  // }
-
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'amount': amount,
-      'start_date': startDate.toIso8601String(),
-      'end_date': endDate.toIso8601String(),
-    };
+    return {};
   }
 }
 
 class YearBudgetSummary {
-  List<MonthSummary> yearSummary;
+  final List<MonthSummary> yearSummary;
 
   YearBudgetSummary({required this.yearSummary});
 
   factory YearBudgetSummary.fromJson(Map<String, dynamic> json) {
     return YearBudgetSummary(
       yearSummary: (json['year_summary'] as List)
-          .map((month) => MonthSummary.fromJson(month))
+          .map((monthJson) => MonthSummary.fromJson(monthJson))
           .toList(),
     );
   }
 }
 
 class MonthSummary {
-  String month;
-  MonthDetails monthDetails;
-  List<Budget> budgets;
+  final String month;
+  final MonthSummaryDetails monthSummary;
+  final Map<String, BudgetByDate> budgetsByDate;
 
   MonthSummary({
     required this.month,
-    required this.monthDetails,
-    required this.budgets,
+    required this.monthSummary,
+    required this.budgetsByDate,
   });
 
   factory MonthSummary.fromJson(Map<String, dynamic> json) {
+    var budgetsByDateJson = json['budgets_by_date'] as Map<String, dynamic>;
+    Map<String, BudgetByDate> budgetsByDate = budgetsByDateJson.map(
+      (date, budgetJson) => MapEntry(date, BudgetByDate.fromJson(budgetJson)),
+    );
+
     return MonthSummary(
       month: json['month'],
-      monthDetails: MonthDetails.fromJson(json['month_summary']),
+      monthSummary: MonthSummaryDetails.fromJson(json['month_summary']),
+      budgetsByDate: budgetsByDate,
+    );
+  }
+}
+
+class MonthSummaryDetails {
+  final double totalBudgeted;
+  final double totalSpent;
+
+  MonthSummaryDetails({
+    required this.totalBudgeted,
+    required this.totalSpent,
+  });
+
+  factory MonthSummaryDetails.fromJson(Map<String, dynamic> json) {
+    return MonthSummaryDetails(
+      totalBudgeted: json['total_budgeted'].toDouble(),
+      totalSpent: json['total_spent'].toDouble(),
+    );
+  }
+}
+
+class BudgetByDate {
+  final double totalBudget;
+  final double totalSpent;
+  final List<Budget> budgets;
+
+  BudgetByDate({
+    required this.totalBudget,
+    required this.totalSpent,
+    required this.budgets,
+  });
+
+  factory BudgetByDate.fromJson(Map<String, dynamic> json) {
+    return BudgetByDate(
+      totalBudget: json['total_budget'].toDouble(),
+      totalSpent: json['total_spent'].toDouble(),
       budgets: (json['budgets'] as List)
-          .map((budget) => Budget.fromJson(budget))
+          .map((budgetJson) => Budget.fromJson(budgetJson))
           .toList(),
     );
   }
 }
 
-class MonthDetails {
-  double totalBudgeted;
-  double totalSpent;
+// class Budget {
+//   final int id;
+//   final String name;
+//   final String category;
+//   final String amount;
+//   final double amountSpent;
+//   final DateTime startDate;
+//   final DateTime endDate;
 
-  MonthDetails({required this.totalBudgeted, required this.totalSpent});
+//   var budgetName;
 
-  factory MonthDetails.fromJson(Map<String, dynamic> json) {
-    return MonthDetails(
-      totalBudgeted: json['total_budgeted']?.toDouble() ?? 0.0,
-      totalSpent: json['total_spent']?.toDouble() ?? 0.0,
-    );
-  }
-}
+//   Budget({
+//     required this.id,
+//     required this.name,
+//     required this.category,
+//     required this.amount,
+//     required this.amountSpent,
+//     required this.startDate,
+//     required this.endDate,
+//   });
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // class Budget {
 //   int id;

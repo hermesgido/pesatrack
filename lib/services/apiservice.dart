@@ -275,7 +275,7 @@ class ApiService {
 
   Future<http.Response> createBudget([Budget? budget]) async {
     print("object");
-    print(budget!.endDate);
+    print(budget!.categoryId);
     print(budget.startDate);
     print("object");
     print('$baseUrl/api/budgets/');
@@ -283,7 +283,8 @@ class ApiService {
       "start_date": budget.startDate.toString(),
       "end_date": budget.endDate.toString(),
       "amount": budget.amount,
-      "name": budget.budgetName
+      "name": budget.budgetName,
+      "category": budget.categoryId
     }));
     return await http.post(
       Uri.parse('$baseUrl/api/budgets/'),
@@ -292,7 +293,8 @@ class ApiService {
         "start_date": budget.startDate.toString(),
         "end_date": budget.endDate.toString(),
         "amount": budget.amount,
-        "name": budget.budgetName
+        "name": budget.budgetName,
+        "category": budget.categoryId.toString()
       }),
     );
   }
@@ -338,11 +340,10 @@ class ApiService {
   Future<YearBudgetSummary> getYearlyBudgetSummary(int year) async {
     final url = Uri.parse('$baseUrl/api/budgets/summary/2024/');
 
-
-final response = await http.get(url, headers: await getHeaders());
+    final response = await http.get(url, headers: await getHeaders());
     print(response.body);
     print("Unanona sasaaaaaaaaaaa");
-            return YearBudgetSummary.fromJson(jsonDecode(response.body));
+    return YearBudgetSummary.fromJson(jsonDecode(response.body));
 
     // try {
     //   final response = await http.get(url, headers: await getHeaders());

@@ -1,6 +1,17 @@
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'package:intl/intl.dart';
+import 'package:pesatrack/models/budget.dart';
+import 'package:pesatrack/models/category.dart';
+import 'package:pesatrack/providers/budgets_provider.dart';
 import 'package:pesatrack/providers/yearly_budget_provider.dart';
+import 'package:pesatrack/services/apiservice.dart';
 import 'package:pesatrack/utils/capitalize.dart';
 import 'package:pesatrack/utils/loading_indicator.dart';
 import 'package:provider/provider.dart';
@@ -19,45 +30,53 @@ class _AllBudgetsState extends State<AllBudgets> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final transactionProvider =
+      final budgetProvider =
           Provider.of<YearBudgetSummaryProvider>(context, listen: false);
-      transactionProvider.fetchYearBudgetSummary(2024);
-      print(transactionProvider);
+      budgetProvider.fetchYearSummary(2024);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final transactionProvider = Provider.of<YearBudgetSummaryProvider>(context);
+    final budgetProvider = Provider.of<YearBudgetSummaryProvider>(context);
 
-    if (transactionProvider.isLoading) {
+    if (budgetProvider.isLoading) {
       return Scaffold(
         body: Center(child: customLoadingIndicator(context)),
       );
     }
 
-    if (transactionProvider.errorMessage != null) {
+    if (budgetProvider.errorMessage != null) {
       return Scaffold(
-        body: Center(child: Text('Error: ${transactionProvider.errorMessage}')),
+        body: Center(child: Text('Error: ${budgetProvider.errorMessage}')),
       );
     }
 
-    final transactionsByDate = transactionProvider.transactionsByDate;
-    final hasTransactions = transactionsByDate!.isEmpty;
+    final transactionsByDate = budgetProvider.budgetsByDate;
+    final hasTransactions = transactionsByDate.isNotEmpty;
 
     // Format amount
-    String totalSpentFormatted =
-        "Tsh ${NumberFormat('#,##0').format(transactionProvider.totalBudgeted)}";
-    String totalBudgetFormatted =
-        "Tsh ${NumberFormat('#,##0').format(transactionProvider.totalSpent)}";
+    String totalExpenseFormatted =
+        "Tsh ${NumberFormat('#,##0').format(budgetProvider.totalSpent)}";
+    String totalIncomFormatted =
+        "Tsh ${NumberFormat('#,##0').format(budgetProvider.totolBudgeted)}";
 
     String totalBalanceFormatted =
-        "Tsh ${NumberFormat('#,##0').format(transactionProvider.totalSpent)}";
+        "Tsh ${NumberFormat('#,##0').format(budgetProvider.balance)}";
     DateFormat dateFormat = DateFormat('MMM d, EEE'); // Example: Aug 23, Mon
 
     // String formattedDate = dateFormat.format(DateTime.parse(time));
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            showAddEditBudgetModal(context);
+            print("object");
+          }),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -79,13 +98,13 @@ class _AllBudgetsState extends State<AllBudgets> {
                             },
                             child: const Icon(Icons.arrow_back)),
                         const Text(
-                          "Expense & Income",
+                          "Budgetting",
                           style: TextStyle(
                               // color: Theme.of(context).colorScheme.secondary,
                               fontSize: 24,
                               fontWeight: FontWeight.bold),
                         ),
-                        SizedBox()
+                        const SizedBox()
                       ],
                     ),
                     Row(
@@ -95,12 +114,12 @@ class _AllBudgetsState extends State<AllBudgets> {
                           icon: const Icon(Icons.skip_previous_outlined,
                               color: Colors.white),
                           onPressed: () {
-                            transactionProvider.previousMonth();
+                            budgetProvider.previousMonth();
                           },
                         ),
                         const SizedBox(width: 20),
                         Text(
-                          transactionProvider.selectedMonth,
+                          budgetProvider.selectedMonth,
                           style: const TextStyle(color: Colors.white),
                         ),
                         const SizedBox(width: 20),
@@ -108,7 +127,7 @@ class _AllBudgetsState extends State<AllBudgets> {
                           icon: const Icon(Icons.skip_next_outlined,
                               color: Colors.white),
                           onPressed: () {
-                            transactionProvider.nextMonth();
+                            budgetProvider.nextMonth();
                           },
                         ),
                       ],
@@ -124,7 +143,7 @@ class _AllBudgetsState extends State<AllBudgets> {
                             const Text("TOTAL SPENT",
                                 style: TextStyle(color: Colors.white)),
                             Text(
-                              totalSpentFormatted,
+                              totalExpenseFormatted,
                               style: const TextStyle(
                                   color: Colors.red,
                                   fontWeight: FontWeight.bold),
@@ -134,12 +153,13 @@ class _AllBudgetsState extends State<AllBudgets> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text("TOTAL BUDGET",
+                            const Text("TOTAL BUDGETED",
                                 style: TextStyle(color: Colors.white)),
                             Text(
-                              totalBudgetFormatted,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                              totalIncomFormatted,
+                              style: const TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -152,32 +172,55 @@ class _AllBudgetsState extends State<AllBudgets> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: hasTransactions
-                    ? ListView.builder(
-                        itemCount:
-                            transactionsByDate.length, // Number of Budget items
-                        itemBuilder: (context, index) {
-                          final budget = transactionsByDate[index];
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: transactionsByDate.entries.map((entry) {
+                          final date = entry.key;
+                          final transactionGroup = entry.value;
+                          String totalBudget =
+                              "+ Tsh ${NumberFormat('#,##0').format(transactionGroup.totalBudget)}";
 
-                          return Card(
-                            elevation: 5,
-                            margin: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(16.0),
-                              title: Text(budget.amount.toString(),
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold)),
-                              subtitle: Text(DateFormat('MMM d, y')
-                                  .format(budget.endDate)),
-                              trailing: Text(
-                                  "Tsh ${NumberFormat('#,##0').format(budget.amount)}"),
-                            ),
+                          String totalSpent =
+                              "+ Tsh ${NumberFormat('#,##0').format(transactionGroup.totalSpent)}";
+
+                          DateFormat dateFormat =
+                              DateFormat('MMM d, EEE'); // Example: Aug 23, Mon
+                          String formattedDate =
+                              dateFormat.format(DateTime.parse(date));
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              GridView.builder(
+                                shrinkWrap: true,
+                                physics:
+                                    const NeverScrollableScrollPhysics(), // Prevents independent scrolling
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2, // 2 items per row
+                                  crossAxisSpacing: 10, // Horizontal spacing
+                                  mainAxisSpacing: 10, // Vertical spacing
+                                  childAspectRatio: 2.8 /
+                                      2, // Adjust the aspect ratio as needed
+                                ),
+                                itemCount: transactionGroup.budgets.length,
+                                itemBuilder: (context, index) {
+                                  var budget = transactionGroup.budgets[index];
+                                  return _buildBudgetCard(
+                                    context,
+                                    budget.category?.categoryName ?? "Category",
+                                    budget.amount!,
+                                    budget.amountSpent.toString(),
+                                  );
+                                },
+                              ),
+                            ],
                           );
-                        },
+                        }).toList(),
                       )
                     : const Center(
                         child: Text(
-                          'No budgets available',
+                          'No transactions for this month',
                           style: TextStyle(fontSize: 18, color: Colors.grey),
                         ),
                       ),
@@ -268,6 +311,561 @@ class _AllBudgetsState extends State<AllBudgets> {
           ],
         ),
       ),
+    );
+  }
+}
+
+Widget _buildBudgetCard(BuildContext context, String? categoryName,
+    String? budgetTotal, String? budgetSpent) {
+  final budgetSpentParsed = double.tryParse(budgetSpent ?? '');
+  final budgetTotalParsed = double.tryParse(budgetTotal ?? '');
+  String budgetSpentFormatted =
+      "Tsh ${NumberFormat('#,##0').format(budgetSpentParsed)}";
+  String budgetTotalFormatted =
+      "Tsh ${NumberFormat('#,##0').format(budgetTotalParsed)}";
+  var progressColor = Colors.red;
+
+  var percent = 0.0;
+  var percent100 = 0.0;
+
+  if (budgetSpentParsed != null &&
+      budgetTotalParsed != null &&
+      budgetTotalParsed != 0) {
+    if ((budgetSpentParsed / budgetTotalParsed) > 0.7) {
+      progressColor = Colors.red;
+    }
+
+    if ((budgetSpentParsed / budgetTotalParsed) > 1) {
+      percent = 1;
+    } else {
+      percent = budgetSpentParsed / budgetTotalParsed;
+    }
+    percent100 = double.parse((percent * 100).toStringAsFixed(2));
+
+    print('Percentage spent: $percent100%');
+  } else {
+    percent = 0.0;
+    percent100 = 0.0;
+
+    print('Invalid data, cannot calculate percentage.');
+  }
+
+  return Container(
+    padding: const EdgeInsets.all(9),
+    decoration: BoxDecoration(
+      color: Theme.of(context).canvasColor,
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Column(
+      children: [
+        Text(categoryName ?? "Category"),
+        Row(
+          children: [
+            const Spacer(),
+            CircularPercentIndicator(
+              radius: 30.0,
+              lineWidth: 5.0,
+              percent: percent,
+              center: Text("$percent100 %"),
+              progressColor: progressColor,
+              backgroundColor: Colors.green,
+            ),
+            const Spacer(),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // crossAxisAlignment: CrossAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Total "),
+                    Text(
+                      budgetTotalFormatted,
+                      style: const TextStyle(color: Colors.grey),
+                    )
+                  ],
+                ),
+              ],
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Spent"),
+                    Text(
+                      budgetSpentFormatted,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        )
+      ],
+    ),
+  );
+}
+
+void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
+  final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _startDateController =
+      TextEditingController(text: _dateFormat.format(DateTime.now()));
+  final TextEditingController _endDateController =
+      TextEditingController(text: _dateFormat.format(DateTime.now()));
+  final TextEditingController _descriptionController = TextEditingController();
+  bool _isLoading = false;
+
+  Job? _selectedCategory;
+  String _selectedType = "Expense";
+
+  if (budget != null) {
+    // Initialize fields for editing
+    _amountController.text = budget.amount.toString();
+    _startDateController.text = _dateFormat.format(budget.startDate!);
+    _endDateController.text = _dateFormat.format(budget.endDate!);
+    _descriptionController.text = budget.budgetName ?? '';
+  }
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (BuildContext context) {
+      return GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.7,
+            maxChildSize: 0.9,
+            minChildSize: 0.5,
+            builder: (BuildContext context, ScrollController scrollController) {
+              return StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  return GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                      ),
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  budget != null ? 'Edit Budget' : 'Add Budget',
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                SearchDropdown(
+                                  onCategorySelected: (Job? value) {
+                                    _selectedCategory = value;
+                                    print(value);
+                                  },
+                                ),
+                                // TextFormField(
+                                //   controller: _descriptionController,
+                                //   decoration: InputDecoration(
+                                //     focusedBorder: OutlineInputBorder(
+                                //       borderSide: BorderSide(
+                                //         color: Theme.of(context)
+                                //             .colorScheme
+                                //             .secondary,
+                                //       ),
+                                //     ),
+                                //     labelText: 'Budget Name',
+                                //     border: OutlineInputBorder(
+                                //       borderRadius:
+                                //           BorderRadius.circular(8.0),
+                                //     ),
+                                //   ),
+                                // ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: _amountController,
+                                  decoration: InputDecoration(
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                      ),
+                                    ),
+                                    labelText: 'Amount',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter an amount';
+                                    }
+                                    if (double.tryParse(value) == null) {
+                                      return 'Please enter a valid number';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: _startDateController,
+                                  decoration: InputDecoration(
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                      ),
+                                    ),
+                                    labelText: 'Start Date',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    suffixIcon:
+                                        const Icon(Icons.calendar_today),
+                                  ),
+                                  readOnly: true,
+                                  onTap: () async {
+                                    DateTime? selectedDate =
+                                        await showDatePicker(
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime(2100),
+                                    );
+
+                                    if (selectedDate != null) {
+                                      _startDateController.text =
+                                          "${selectedDate.toLocal()}"
+                                              .split(' ')[0];
+                                    }
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please select a start date';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: _endDateController,
+                                  decoration: InputDecoration(
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                      ),
+                                    ),
+                                    labelText: 'End Date',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    suffixIcon:
+                                        const Icon(Icons.calendar_today),
+                                  ),
+                                  readOnly: true,
+                                  onTap: () async {
+                                    DateTime? selectedDate =
+                                        await showDatePicker(
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime(2100),
+                                    );
+
+                                    if (selectedDate != null) {
+                                      _endDateController.text =
+                                          "${selectedDate.toLocal()}"
+                                              .split(' ')[0];
+                                    }
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please select an end date';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: _isLoading
+                                        ? null
+                                        : () async {
+                                            if (_formKey.currentState!
+                                                .validate()) {
+                                              final budgetsProvider =
+                                                  Provider.of<BudgetProvider>(
+                                                      context,
+                                                      listen: false);
+
+                                              setState(() {
+                                                _isLoading = true;
+                                              });
+                                              try {
+                                                if (budget != null) {
+                                                  // Edit existing budget
+                                                  // await budgetsProvider.updateBudget(
+                                                  //   budget.id,
+                                                  //   _descriptionController.text,
+                                                  //   double.parse(_amountController.text),
+                                                  //   DateTime.parse(_startDateController.text),
+                                                  //   DateTime.parse(_endDateController.text),
+                                                  // );
+
+                                                  await budgetsProvider
+                                                      .updateBudget(
+                                                    budget.id!,
+                                                    Budget(
+                                                      amount: _amountController
+                                                          .text,
+                                                      startDate:
+                                                          DateTime.tryParse(
+                                                              _startDateController
+                                                                  .text)!,
+                                                      endDate:
+                                                          DateTime.tryParse(
+                                                              _endDateController
+                                                                  .text)!,
+                                                      budgetName:
+                                                          _descriptionController
+                                                              .text,
+                                                    ),
+                                                  );
+                                                } else {
+                                                  await budgetsProvider
+                                                      .createBudget(
+                                                    Budget(
+                                                      categoryId:
+                                                          _selectedCategory?.id,
+                                                      amount: _amountController
+                                                          .text,
+                                                      startDate: DateTime.tryParse(
+                                                          _dateFormat.format(
+                                                              DateTime.parse(
+                                                                  _startDateController
+                                                                      .text)))!,
+                                                      endDate:
+                                                          DateTime.tryParse(
+                                                        _dateFormat.format(
+                                                          DateTime.parse(
+                                                              _endDateController
+                                                                  .text),
+                                                        ),
+                                                      )!,
+                                                      budgetName:
+                                                          _descriptionController
+                                                              .text,
+                                                    ),
+                                                  );
+                                                  // Add new budget
+                                                  // await budgetsProvider.createBudget(
+                                                  //   _descriptionController.text,
+                                                  //   double.parse(_amountController.text),
+                                                  //   DateTime.parse(_startDateController.text),
+                                                  //   DateTime.parse(_endDateController.text),
+                                                  // );
+                                                }
+                                                Navigator.of(context).pop();
+                                              } catch (e) {
+                                                // Handle error
+                                              } finally {
+                                                setState(() {
+                                                  _isLoading = false;
+                                                });
+                                              }
+                                            }
+                                          },
+                                    child: _isLoading
+                                        ? const CircularProgressIndicator()
+                                        : Text(budget != null
+                                            ? 'Update Budget'
+                                            : 'Add Budget'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ));
+    },
+  );
+}
+
+const List<String> _list = [
+  'Expense',
+  'Income',
+];
+
+class SimpleDropdown extends StatefulWidget {
+  final ValueChanged<String?> onTypeSelected;
+
+  const SimpleDropdown({required this.onTypeSelected, super.key});
+
+  @override
+  State<SimpleDropdown> createState() => _SimpleDropdownState();
+}
+
+class _SimpleDropdownState extends State<SimpleDropdown> {
+  @override
+  Widget build(BuildContext context) {
+    return CustomDropdown<String>(
+      decoration: CustomDropdownDecoration(
+        closedFillColor: Theme.of(context).colorScheme.background,
+        closedBorderRadius: BorderRadius.circular(12),
+        closedBorder: const Border(
+          bottom: BorderSide(color: Colors.white),
+          top: BorderSide(color: Colors.white),
+          left: BorderSide(color: Colors.white),
+          right: BorderSide(color: Colors.white),
+        ),
+        expandedFillColor: Theme.of(context).colorScheme.background,
+        searchFieldDecoration: SearchFieldDecoration(
+          fillColor: Theme.of(context).colorScheme.background,
+        ),
+      ),
+      hintText: 'Select job role',
+      items: _list,
+      initialItem: _list[0],
+      excludeSelected: false,
+      onChanged: (value) {
+        setState(() {});
+        widget.onTypeSelected(value);
+        log('changing value to: $value');
+      },
+    );
+  }
+}
+
+class Job with CustomDropdownListFilter {
+  final String id;
+  final String name;
+  final IconData icon;
+
+  const Job(this.id, this.name, this.icon);
+
+  @override
+  String toString() {
+    return name;
+  }
+
+  @override
+  bool filter(String query) {
+    return name.toLowerCase().contains(query.toLowerCase());
+  }
+}
+
+class SearchDropdown extends StatefulWidget {
+  final ValueChanged<Job?> onCategorySelected;
+
+  const SearchDropdown({required this.onCategorySelected, Key? key})
+      : super(key: key);
+
+  @override
+  _SearchDropdownState createState() => _SearchDropdownState();
+}
+
+class _SearchDropdownState extends State<SearchDropdown> {
+  List<Job> _list = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      final response = await ApiService().getCategories();
+      if (response.statusCode == 200) {
+        List<dynamic> categoriesJson = jsonDecode(response.body);
+        setState(() {
+          _list = categoriesJson
+              .map((category) => Job(category['id'].toString(),
+                  category['category_name'], Icons.category))
+              .toList();
+          _loading = false;
+        });
+      } else {
+        log('Failed to load categories');
+      }
+    } catch (e) {
+      log('Error fetching categories: $e');
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      // return Center(child: customLoadingIndicator(context));
+    }
+
+    return CustomDropdown<Job>.search(
+      decoration: CustomDropdownDecoration(
+        closedFillColor: Theme.of(context).colorScheme.background,
+        closedBorderRadius: BorderRadius.circular(12),
+        closedBorder: const Border(
+          bottom: BorderSide(color: Colors.white),
+          top: BorderSide(color: Colors.white),
+          left: BorderSide(color: Colors.white),
+          right: BorderSide(color: Colors.white),
+        ),
+        expandedFillColor: Theme.of(context).colorScheme.background,
+        searchFieldDecoration: SearchFieldDecoration(
+          fillColor: Theme.of(context).colorScheme.background,
+        ),
+      ),
+      hintText: 'Select Category',
+      items: _list,
+      excludeSelected: false,
+      onChanged: (value) {
+        setState(() {});
+        widget.onCategorySelected(value);
+      },
     );
   }
 }

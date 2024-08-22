@@ -50,6 +50,8 @@ dependencies:
   panara_dialogs: ^0.1.5
   font_awesome_flutter: ^10.7.0
   fl_chart: ^0.68.0
+  percent_indicator: ^4.2.3
+  google_sign_in: ^6.2.1
 
 
 dev_dependencies:

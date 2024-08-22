@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pesatrack/utils/loading_indicator.dart';
+import 'package:pesatrack/widgets/bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:pesatrack/providers/budgets_provider.dart';
 import 'package:pesatrack/models/budget.dart';
@@ -48,7 +49,7 @@ class _BudgetPageState extends State<BudgetPage> {
             itemBuilder: (context, index) {
               final budget = budgets[index];
               const spentAmount = 0.0; // Replace with real spent amount
-              final remainingAmount = budget.amount! - spentAmount;
+              final remainingAmount = 0000;
               final progress = 0;
               // budget.amount! > 0 ? spentAmount / budget.amount : 0.0;
 
@@ -75,7 +76,7 @@ class _BudgetPageState extends State<BudgetPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Limit: Tsh ${budget.amount?.toStringAsFixed(2)}',
+                            'Limit: Tsh ${budget.amount}',
                             style: const TextStyle(fontSize: 16),
                           ),
                           Text(
@@ -107,6 +108,9 @@ class _BudgetPageState extends State<BudgetPage> {
     );
   }
 
+
+
+
   void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
     final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
 
@@ -119,6 +123,8 @@ class _BudgetPageState extends State<BudgetPage> {
     final TextEditingController _descriptionController =
         TextEditingController();
     bool _isLoading = false;
+     Job? _selectedCategory;
+    String _selectedType = "Expense";
 
     if (budget != null) {
       // Initialize fields for editing
@@ -337,9 +343,9 @@ class _BudgetPageState extends State<BudgetPage> {
                                                         .updateBudget(
                                                       budget.id!,
                                                       Budget(
-                                                        amount: double.parse(
+                                                        amount: 
                                                             _amountController
-                                                                .text),
+                                                                .text,
                                                         startDate:
                                                             DateTime.tryParse(
                                                                 _startDateController
@@ -357,9 +363,9 @@ class _BudgetPageState extends State<BudgetPage> {
                                                     await budgetsProvider
                                                         .createBudget(
                                                       Budget(
-                                                        amount: double.parse(
+                                                        amount: 
                                                             _amountController
-                                                                .text),
+                                                                .text,
                                                         startDate: DateTime.tryParse(
                                                             _dateFormat.format(
                                                                 DateTime.parse(

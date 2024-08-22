@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:pesatrack/providers/authprovider.dart';
-import 'package:pesatrack/main.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 import 'login.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -40,6 +41,36 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
 
+    final GoogleSignIn _googleSignIn = GoogleSignIn(
+      scopes: ['email'],
+    );
+
+    Future<void> signInWithGoogle() async {
+      try {
+        // Step 1: Initiate Google Sign-In
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+        // Step 2: Retrieve authentication tokens
+        final GoogleSignInAuthentication? googleAuth =
+            await googleUser?.authentication;
+
+        final String? accessToken = googleAuth?.accessToken;
+        final String? idToken = googleAuth?.idToken;
+
+        if (idToken != null && accessToken != null) {
+          // Step 3: Print tokens (for debugging) and send the idToken to your Django backend
+          print("ID Token: $idToken");
+          print("Access Token: $accessToken");
+
+          // Send the idToken to your Django backend for verification
+          // await sendGoogleTokenToBackend(idToken);
+        }
+      } catch (error) {
+        // Handle any errors that occur during sign-in
+        print('Error signing in with Google: $error');
+      }
+    }
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -65,6 +96,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   "Continue with Google",
                   25,
                   () async {
+                    signInWithGoogle();
+                    // _handleGoogleSignIn();
                     // await authClass.googleSignIn(context);
                   },
                 ),
