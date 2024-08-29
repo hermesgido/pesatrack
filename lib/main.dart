@@ -14,6 +14,7 @@ import 'package:pesatrack/screens/home_page.dart';
 import 'package:pesatrack/screens/morepages/more_pages.dart';
 import 'package:pesatrack/screens/settings/profile_screen.dart';
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
+import 'package:pesatrack/screens/transactions/all_transactions.dart';
 import 'package:pesatrack/utils/loading_indicator.dart';
 import 'package:pesatrack/utils/theme.dart';
 import 'package:pesatrack/widgets/bottom_sheet.dart';
@@ -182,8 +183,9 @@ class _MainPageState extends State<MainPage> {
         physics: const NeverScrollableScrollPhysics(), // Disable swiping
         children: [
           const HomeScreen(),
-          TrackTransactionsPage(),
-          const HomeScreen(), // Keep the current page active instead of showing an empty page
+          const AllTransactions(),
+          // TrackTransactionsPage(),
+          const HomeScreen(),
           const MorePages(),
           ProfileScreen()
         ],

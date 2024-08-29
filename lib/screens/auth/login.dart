@@ -29,9 +29,10 @@ class _LoginPageState extends State<LoginPage> {
         const SnackBar(content: Text('Login successful')),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      print(e);
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text(e.toString())),
+      // );
     }
   }
 
@@ -208,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
           borderRadius: BorderRadius.circular(20),
           gradient: const LinearGradient(
             colors: [
-               Color(0xFF6D53F4),
+              Color(0xFF6D53F4),
               Color(0xFF6D53F4),
               Color(0xFF6D53F4),
             ],

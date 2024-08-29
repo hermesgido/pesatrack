@@ -2,13 +2,10 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:intl/intl.dart';
 import 'package:pesatrack/models/budget.dart';
-import 'package:pesatrack/models/category.dart';
 import 'package:pesatrack/providers/budgets_provider.dart';
 import 'package:pesatrack/providers/yearly_budget_provider.dart';
 import 'package:pesatrack/services/apiservice.dart';
@@ -69,7 +66,7 @@ class _AllBudgetsState extends State<AllBudgets> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-          child: Icon(
+          child: const Icon(
             Icons.add,
             color: Colors.white,
           ),
@@ -200,7 +197,7 @@ class _AllBudgetsState extends State<AllBudgets> {
                                   crossAxisCount: 2, // 2 items per row
                                   crossAxisSpacing: 10, // Horizontal spacing
                                   mainAxisSpacing: 10, // Vertical spacing
-                                  childAspectRatio: 2.8 /
+                                  childAspectRatio: 2.6 /
                                       2, // Adjust the aspect ratio as needed
                                 ),
                                 itemCount: transactionGroup.budgets.length,
@@ -211,6 +208,7 @@ class _AllBudgetsState extends State<AllBudgets> {
                                     budget.category?.categoryName ?? "Category",
                                     budget.amount!,
                                     budget.amountSpent.toString(),
+                                    budget,
                                   );
                                 },
                               ),
@@ -220,7 +218,7 @@ class _AllBudgetsState extends State<AllBudgets> {
                       )
                     : const Center(
                         child: Text(
-                          'No transactions for this month',
+                          'No budgets for this month',
                           style: TextStyle(fontSize: 18, color: Colors.grey),
                         ),
                       ),
@@ -316,7 +314,7 @@ class _AllBudgetsState extends State<AllBudgets> {
 }
 
 Widget _buildBudgetCard(BuildContext context, String? categoryName,
-    String? budgetTotal, String? budgetSpent) {
+    String? budgetTotal, String? budgetSpent, Budget? budget) {
   final budgetSpentParsed = double.tryParse(budgetSpent ?? '');
   final budgetTotalParsed = double.tryParse(budgetTotal ?? '');
   String budgetSpentFormatted =
@@ -358,7 +356,41 @@ Widget _buildBudgetCard(BuildContext context, String? categoryName,
     ),
     child: Column(
       children: [
-        Text(categoryName ?? "Category"),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // const Spacer(),
+            Text(categoryName ?? "Category"),
+            InkWell(
+              onTap: () {},
+              child: PopupMenuButton<SampleItem>(
+                onSelected: (SampleItem item) {
+                  if (item == SampleItem.itemOne) {
+                    showAddEditBudgetModal(context, budget: budget);
+                  } else if (item == SampleItem.itemTwo) {
+                    _showDeleteConfirmationDialog(context, budget!);
+                  }
+                },
+                itemBuilder: (BuildContext context) =>
+                    <PopupMenuEntry<SampleItem>>[
+                  const PopupMenuItem<SampleItem>(
+                    value: SampleItem.itemOne,
+                    child: Text('Edit'),
+                  ),
+                  const PopupMenuItem<SampleItem>(
+                    value: SampleItem.itemTwo,
+                    child: Text('Delete'),
+                  ),
+                  const PopupMenuItem<SampleItem>(
+                    value: SampleItem.itemThree,
+                    child: Text('Ignore'),
+                  ),
+                ],
+                child: const Icon(Icons.more_vert),
+              ),
+            )
+          ],
+        ),
         Row(
           children: [
             const Spacer(),
@@ -419,6 +451,36 @@ Widget _buildBudgetCard(BuildContext context, String? categoryName,
   );
 }
 
+void _showDeleteConfirmationDialog(BuildContext context, Budget budget) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Confirm Deletion"),
+        content: const Text("Are you sure you want to delete this budget?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              // Perform the delete operation
+              // e.g., budgetProvider.deleteBudget(budget);
+              Navigator.of(context).pop(); // Close the dialog after deletion
+            },
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void onEdit() {}
+
 void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
   final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
 
@@ -440,6 +502,11 @@ void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
     _startDateController.text = _dateFormat.format(budget.startDate!);
     _endDateController.text = _dateFormat.format(budget.endDate!);
     _descriptionController.text = budget.budgetName ?? '';
+    _selectedCategory = Job(
+      budget.category!.id.toString(),
+      budget.category!.categoryName!,
+      Icons.catching_pokemon,
+    );
   }
 
   showModalBottomSheet(
@@ -488,28 +555,12 @@ void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
                                 ),
                                 const SizedBox(height: 16),
                                 SearchDropdown(
+                                  initialValue: _selectedCategory,
                                   onCategorySelected: (Job? value) {
                                     _selectedCategory = value;
                                     print(value);
                                   },
                                 ),
-                                // TextFormField(
-                                //   controller: _descriptionController,
-                                //   decoration: InputDecoration(
-                                //     focusedBorder: OutlineInputBorder(
-                                //       borderSide: BorderSide(
-                                //         color: Theme.of(context)
-                                //             .colorScheme
-                                //             .secondary,
-                                //       ),
-                                //     ),
-                                //     labelText: 'Budget Name',
-                                //     border: OutlineInputBorder(
-                                //       borderRadius:
-                                //           BorderRadius.circular(8.0),
-                                //     ),
-                                //   ),
-                                // ),
                                 const SizedBox(height: 16),
                                 TextFormField(
                                   controller: _amountController,
@@ -623,6 +674,10 @@ void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
                                 SizedBox(
                                   width: double.infinity,
                                   child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
                                     onPressed: _isLoading
                                         ? null
                                         : () async {
@@ -638,15 +693,6 @@ void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
                                               });
                                               try {
                                                 if (budget != null) {
-                                                  // Edit existing budget
-                                                  // await budgetsProvider.updateBudget(
-                                                  //   budget.id,
-                                                  //   _descriptionController.text,
-                                                  //   double.parse(_amountController.text),
-                                                  //   DateTime.parse(_startDateController.text),
-                                                  //   DateTime.parse(_endDateController.text),
-                                                  // );
-
                                                   await budgetsProvider
                                                       .updateBudget(
                                                     budget.id!,
@@ -672,13 +718,16 @@ void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
                                                     Budget(
                                                       categoryId:
                                                           _selectedCategory?.id,
-                                                      amount: _amountController
+                                                    amount: _amountController
                                                           .text,
-                                                      startDate: DateTime.tryParse(
-                                                          _dateFormat.format(
-                                                              DateTime.parse(
-                                                                  _startDateController
-                                                                      .text)))!,
+                                                      startDate:
+                                                          DateTime.tryParse(
+                                                        _dateFormat.format(
+                                                          DateTime.parse(
+                                                              _startDateController
+                                                                  .text),
+                                                        ),
+                                                      )!,
                                                       endDate:
                                                           DateTime.tryParse(
                                                         _dateFormat.format(
@@ -692,13 +741,6 @@ void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
                                                               .text,
                                                     ),
                                                   );
-                                                  // Add new budget
-                                                  // await budgetsProvider.createBudget(
-                                                  //   _descriptionController.text,
-                                                  //   double.parse(_amountController.text),
-                                                  //   DateTime.parse(_startDateController.text),
-                                                  //   DateTime.parse(_endDateController.text),
-                                                  // );
                                                 }
                                                 Navigator.of(context).pop();
                                               } catch (e) {
@@ -712,9 +754,13 @@ void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
                                           },
                                     child: _isLoading
                                         ? const CircularProgressIndicator()
-                                        : Text(budget != null
-                                            ? 'Update Budget'
-                                            : 'Add Budget'),
+                                        : Text(
+                                            budget != null
+                                                ? 'Update Budget'
+                                                : 'Add Budget',
+                                            style: const TextStyle(
+                                                color: Colors.white),
+                                          ),
                                   ),
                                 ),
                               ],
@@ -797,9 +843,13 @@ class Job with CustomDropdownListFilter {
 
 class SearchDropdown extends StatefulWidget {
   final ValueChanged<Job?> onCategorySelected;
+  final Job? initialValue;
 
-  const SearchDropdown({required this.onCategorySelected, Key? key})
-      : super(key: key);
+  const SearchDropdown({
+    required this.onCategorySelected,
+    Key? key,
+    this.initialValue,
+  }) : super(key: key);
 
   @override
   _SearchDropdownState createState() => _SearchDropdownState();
@@ -827,6 +877,7 @@ class _SearchDropdownState extends State<SearchDropdown> {
               .toList();
           _loading = false;
         });
+        _list.add(const Job("0", "Select", Icons.category));
       } else {
         log('Failed to load categories');
       }
@@ -843,6 +894,8 @@ class _SearchDropdownState extends State<SearchDropdown> {
     if (_loading) {
       // return Center(child: customLoadingIndicator(context));
     }
+    print(widget.initialValue);
+    print("this is initial value");
 
     return CustomDropdown<Job>.search(
       decoration: CustomDropdownDecoration(
@@ -861,6 +914,7 @@ class _SearchDropdownState extends State<SearchDropdown> {
       ),
       hintText: 'Select Category',
       items: _list,
+      // initialItem: widget.initialValue ?? Job("0", "Select", Icons.category),
       excludeSelected: false,
       onChanged: (value) {
         setState(() {});
@@ -869,3 +923,5 @@ class _SearchDropdownState extends State<SearchDropdown> {
     );
   }
 }
+
+enum SampleItem { itemOne, itemTwo, itemThree }

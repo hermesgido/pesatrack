@@ -42,7 +42,8 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _apiService.createCategory(name, selectedCategoryType);
+      final response =
+          await _apiService.createCategory(name, selectedCategoryType);
       print(response.body);
       if (response.statusCode == 201) {
         _categories.add(Category.fromJson(jsonDecode(response.body)));
@@ -65,6 +66,7 @@ class CategoryProvider with ChangeNotifier {
 
     try {
       final response = await _apiService.deleteCategory(id);
+      print(response.statusCode);
       print(response.body);
       if (response.statusCode == 204) {
         _categories.removeWhere((category) => category.id == id);
@@ -81,12 +83,14 @@ class CategoryProvider with ChangeNotifier {
   }
 
   // Function to update a category
-  Future<void> updateCategory(int id, String name, String selectedCategoryType) async {
+  Future<void> updateCategory(
+      int id, String name, String selectedCategoryType) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final response = await _apiService.updateCategory(id, name, selectedCategoryType);
+      final response =
+          await _apiService.updateCategory(id, name, selectedCategoryType);
       if (response.statusCode == 200) {
         int index = _categories.indexWhere((category) => category.id == id);
         if (index != -1) {

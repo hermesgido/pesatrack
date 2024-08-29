@@ -316,16 +316,16 @@ class ApiService {
   // Shared Preferences for Storing JWT Token
 
   Future<YearSummary> getYearSummary(int year) async {
-    final response =
-        await http.get(Uri.parse('$baseUrl/api/year-summary/2024'));
+    final url = Uri.parse('$baseUrl/api/year-summary/2024');
+    final response = await http.get(url, headers: await getHeaders());
     print(response.body);
 
-    if (response.statusCode == 200) {
-      // Parse the JSON data into your model
-      return YearSummary.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load year summary');
-    }
+    // if (response.statusCode == 200) {
+    // Parse the JSON data into your model
+    return YearSummary.fromJson(json.decode(response.body));
+    //   } else {
+    //     throw Exception('Failed to load year summary');
+    //   }
   }
 
   Future<http.Response> calculateMnoFee(Map<String, Object> map) async {
