@@ -1,2 +1,2 @@
-const baseUrl2 = 'http://172.20.10.7:8000';
-const baseUrl = "http://167.99.95.171:8000";
+const baseUrl2 = 'http://165.232.110.40';
+const baseUrl = "http://165.232.110.40";

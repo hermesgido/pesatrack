@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:pesatrack/providers/authprovider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
 import 'login.dart';
 
 class RegisterPage extends StatefulWidget {
