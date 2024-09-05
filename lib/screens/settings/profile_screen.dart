@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pesatrack/main.dart';
 import 'package:pesatrack/screens/home_page.dart';
+import 'package:pesatrack/screens/settings/privacy_policy.dart';
 import 'package:pesatrack/utils/urls.dart';
 import 'package:pesatrack/widgets/logout_bottom_modal.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ProfileScreen extends StatefulWidget {
   ProfileScreen({super.key});
@@ -148,18 +150,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         name: "Your Profile",
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeScreen()));
-                      },
-                      child: ProfileSettingItem(
-                        iconName: Icons.payment_outlined,
-                        name: "Your Pictures",
-                      ),
-                    ),
                     ProfileSettingItem(
                       iconName: Icons.settings_outlined,
                       name: "Settings",
@@ -168,14 +158,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       iconName: Icons.info_outline_rounded,
                       name: "Help Center",
                     ),
-                    ProfileSettingItem(
-                      iconName: Icons.person_add_alt_outlined,
-                      name: "Invite Friends",
+                    InkWell(
+                      child: ProfileSettingItem(
+                        iconName: Icons.person_add_alt_outlined,
+                        name: "Invite Friends",
+                      ),
+                      onTap: () {
+                        Share.share(
+                            'Check out this amazing app: ',
+                            subject: 'Invite Friends to Try This App');
+                      },
                     ),
+                 
                     InkWell(
                       onTap: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => const HomeScreen()));
+                            builder: (_) => const PrivacyPolicyPage()));
                       },
                       child: ProfileSettingItem(
                         iconName: Icons.lock_open_outlined,

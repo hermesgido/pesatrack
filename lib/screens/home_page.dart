@@ -62,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             textTheme.bodyMedium!.copyWith(color: Colors.grey),
                       ),
                       Text(
-                        "Kathir",
+                        "Welcome",
                         style: textTheme.titleLarge!.copyWith(
                           fontWeight: FontWeight.bold,
                         ),

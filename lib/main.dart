@@ -167,7 +167,7 @@ class _MainPageState extends State<MainPage> {
       ),
       TabItem(
         icon: Icons.account_balance_wallet,
-        title: 'Wallet',
+        title: 'Budget',
       ),
       TabItem(
         icon: Icons.person,
