@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "899209770467",
+    "project_id": "pesatrackapp",
+    "storage_bucket": "pesatrackapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:899209770467:android:2deee2c40cd1e335801cd6",
+        "android_client_info": {
+          "package_name": "com.pesatrack.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "899209770467-ns9sh8hfcba7149413841n9n2tqp9p32.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAANrZh_24fsWUjbV1vjrUm1_QQ5HGn5nI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "899209770467-ns9sh8hfcba7149413841n9n2tqp9p32.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "899209770467-esdt8ujan7j9ne1ioqdfb11pb47dral5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.pesatrack.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

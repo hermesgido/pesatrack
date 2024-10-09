@@ -1,0 +1,25 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "pesatrackapp",
+                    "appId": "1:899209770467:android:2deee2c40cd1e335801cd6",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "pesatrackapp",
+                    "configurations": {
+                        "android": "1:899209770467:android:2deee2c40cd1e335801cd6",
+                        "ios": "1:899209770467:ios:3f05003ab8a3aaa7801cd6",
+                        "macos": "1:899209770467:ios:3f05003ab8a3aaa7801cd6",
+                        "web": "1:899209770467:web:0074e7b87492d2a9801cd6",
+                        "windows": "1:899209770467:web:c9bea97ac60aa26b801cd6"
+                    }
+                }
+            }
+        }
+    }
+}

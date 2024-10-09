@@ -74,7 +74,7 @@ class LogoutBottomSheetWidget extends StatelessWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const LoginPage()));
+                                  builder: (context) => const AuthPage()));
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 30),

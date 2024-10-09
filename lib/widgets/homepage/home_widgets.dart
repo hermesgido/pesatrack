@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:pesatrack/screens/morepages/categories_analytics.dart';
 
 class CategoriesWidget extends StatelessWidget {
   @override
@@ -18,11 +19,18 @@ class CategoriesWidget extends StatelessWidget {
                 'Categories',
                 style: textTheme.titleLarge,
               ),
-              Text(
-                'See All',
-                style: textTheme.bodyMedium!.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey,
+              InkWell(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    return ExpenseCategoriesDashboard();
+                  }));
+                },
+                child: Text(
+                  'See All',
+                  style: textTheme.bodyMedium!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
                 ),
               ),
             ],

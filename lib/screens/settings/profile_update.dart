@@ -5,9 +5,9 @@
 // import 'package:provider/provider.dart';
 
 // class UpdateProfile extends StatefulWidget {
-//   final bool fromRegisterPage;
+//   final bool fromAuthPage;
 
-//   const UpdateProfile({super.key, this.fromRegisterPage = false});
+//   const UpdateProfile({super.key, this.fromAuthPage = false});
 
 //   @override
 //   State<UpdateProfile> createState() => _UpdateProfileState();
@@ -103,7 +103,7 @@
 //       //       gender: gender,
 //       //       bio: bio,
 //       //       profilePicture: _profileImage,
-//       //       fromRegisterPage: widget.fromRegisterPage,
+//       //       fromAuthPage: widget.fromAuthPage,
 //       //     );
 
 //       ScaffoldMessenger.of(context).showSnackBar(

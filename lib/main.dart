@@ -1,14 +1,15 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pesatrack/providers/authprovider.dart';
 import 'package:pesatrack/providers/budgets_provider.dart';
 import 'package:pesatrack/providers/categories_provider.dart';
+import 'package:pesatrack/providers/expense_cat_provider.dart';
 import 'package:pesatrack/providers/fee_Provider.dart';
 import 'package:pesatrack/providers/forex_provider.dart';
 import 'package:pesatrack/providers/transactions_provider.dart';
 import 'package:pesatrack/providers/year_summary_provider.dart';
 import 'package:pesatrack/providers/yearly_budget_provider.dart';
-import 'package:pesatrack/screens/analytics/track_page.dart';
 import 'package:pesatrack/screens/auth/login.dart';
 import 'package:pesatrack/screens/home_page.dart';
 import 'package:pesatrack/screens/morepages/more_pages.dart';
@@ -20,7 +21,9 @@ import 'package:pesatrack/utils/theme.dart';
 import 'package:pesatrack/widgets/bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(
     MultiProvider(
       providers: [
@@ -31,7 +34,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) => FeeProvider()),
         ChangeNotifierProvider(create: (_) => ExchangeProvider()),
-        ChangeNotifierProvider(create: (_) => YearBudgetSummaryProvider())
+        ChangeNotifierProvider(create: (_) => YearBudgetSummaryProvider()),
+        ChangeNotifierProvider(create: (_) => ExpenseCategoryProvider())
       ],
       child: const MyApp(),
     ),
@@ -76,7 +80,7 @@ class _MyAppState extends State<MyApp> {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         scaffoldMessengerKey: rootScaffoldMessengerKey,
-        home: LoadingScreen(),
+        home: const LoadingScreen(),
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
@@ -93,8 +97,8 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      // If authenticated, show MainPage, else show LoginPage
-      home: authProvider.isAuthenticated ? const MainPage() : const LoginPage(),
+      // If authenticated, show MainPage, else show AuthPage
+      home: authProvider.isAuthenticated ? const MainPage() : const AuthPage(),
     );
   }
 }
@@ -119,10 +123,10 @@ class _MainPageState extends State<MainPage> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     // Check if the user is authenticated
     if (!authProvider.isAuthenticated) {
-      // Redirect to LoginPage if not authenticated
+      // Redirect to AuthPage if not authenticated
       Future.microtask(() {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginPage()),
+          MaterialPageRoute(builder: (context) => const AuthPage()),
           (Route<dynamic> route) => false,
         );
       });

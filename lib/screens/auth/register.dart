@@ -1,32 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pesatrack/services/auth_service.dart';
 import 'package:provider/provider.dart';
 import 'package:pesatrack/providers/authprovider.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'login.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+class AuthPage extends StatefulWidget {
+  const AuthPage({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<AuthPage> createState() => _AuthPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _AuthPageState extends State<AuthPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isLogin = true; // State to toggle between login and registration
 
-  Future<void> _register() async {
+  Future<void> _authenticate() async {
     if (_formKey.currentState?.validate() ?? false) {
       final String email = _emailController.text.trim();
       final String password = _passwordController.text.trim();
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
       try {
-        await authProvider.registerUser(email, password, context);
+        if (_isLogin) {
+          await AuthService()
+              .signin(email: email, password: password, context: context);
+        } else {
+          await AuthService()
+              .signup(email: email, password: password, context: context);
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration successful')),
+          SnackBar(
+              content: Text(
+                  _isLogin ? 'Login successful' : 'Registration successful')),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -40,36 +48,6 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
 
-    final GoogleSignIn _googleSignIn = GoogleSignIn(
-      scopes: ['email'],
-    );
-
-    Future<void> signInWithGoogle() async {
-      try {
-        // Step 1: Initiate Google Sign-In
-        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-        // Step 2: Retrieve authentication tokens
-        final GoogleSignInAuthentication? googleAuth =
-            await googleUser?.authentication;
-
-        final String? accessToken = googleAuth?.accessToken;
-        final String? idToken = googleAuth?.idToken;
-
-        if (idToken != null && accessToken != null) {
-          // Step 3: Print tokens (for debugging) and send the idToken to your Django backend
-          print("ID Token: $idToken");
-          print("Access Token: $accessToken");
-
-          // Send the idToken to your Django backend for verification
-          // await sendGoogleTokenToBackend(idToken);
-        }
-      } catch (error) {
-        // Handle any errors that occur during sign-in
-        print('Error signing in with Google: $error');
-      }
-    }
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -81,9 +59,9 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  "Register",
-                  style: TextStyle(
+                Text(
+                  _isLogin ? "Login" : "Register",
+                  style: const TextStyle(
                     fontSize: 35,
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -95,9 +73,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   "Continue with Google",
                   25,
                   () async {
-                    signInWithGoogle();
-                    // _handleGoogleSignIn();
-                    // await authClass.googleSignIn(context);
+                    // Call Google Sign-In functionality here
                   },
                 ),
                 const SizedBox(height: 15),
@@ -114,7 +90,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       const SizedBox(height: 15),
                       textItem("Password", _passwordController, true),
                       const SizedBox(height: 15),
-                      colorButton("Sign Up", authProvider),
+                      colorButton(_isLogin ? "Login" : "Sign Up", authProvider),
                     ],
                   ),
                 ),
@@ -122,26 +98,24 @@ class _RegisterPageState extends State<RegisterPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    const Text(
-                      "Already have an Account?",
-                      style: TextStyle(
+                    Text(
+                      _isLogin
+                          ? "Don't have an account?"
+                          : "Already have an account?",
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                       ),
                     ),
                     InkWell(
                       onTap: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginPage(),
-                          ),
-                          (route) => false,
-                        );
+                        setState(() {
+                          _isLogin = !_isLogin; // Toggle the state
+                        });
                       },
-                      child: const Text(
-                        " Login",
-                        style: TextStyle(
+                      child: Text(
+                        _isLogin ? " Register" : " Login",
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           fontSize: 18,
@@ -258,7 +232,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget colorButton(String name, AuthProvider authProvider) {
     return InkWell(
       onTap: () async {
-        await _register();
+        await _authenticate();
       },
       child: Container(
         width: MediaQuery.of(context).size.width - 90,

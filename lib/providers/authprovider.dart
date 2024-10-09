@@ -39,7 +39,7 @@ class AuthProvider with ChangeNotifier {
         prefs.remove('token'); // Optionally remove the token if invalid
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const LoginPage()),
+            MaterialPageRoute(builder: (context) => const AuthPage()),
             (Route<dynamic> route) => false,
           );
         });
