@@ -3,14 +3,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pesatrack/providers/authprovider.dart';
 import 'package:provider/provider.dart';
 
-class AuthPage extends StatefulWidget {
-  const AuthPage({super.key});
+class AuthPage2 extends StatefulWidget {
+  const AuthPage2({super.key});
 
   @override
-  State<AuthPage> createState() => _AuthPageState();
+  State<AuthPage2> createState() => _AuthPage2State();
 }
 
-class _AuthPageState extends State<AuthPage> {
+class _AuthPage2State extends State<AuthPage2> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool circular = false;
@@ -86,7 +86,7 @@ class _AuthPageState extends State<AuthPage> {
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                          builder: (builder) => const AuthPage(),
+                          builder: (builder) => const AuthPage2(),
                         ),
                         (route) => false,
                       );

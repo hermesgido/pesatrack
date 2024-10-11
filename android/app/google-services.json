@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "899209770467-h4aaj4pl9fksrjerf6v3ep4hqgdar4mn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pesatrack.app",
+            "certificate_hash": "84f0f963cf02633bc173b615e0f0fb545dfe3ba7"
+          }
+        },
+        {
           "client_id": "899209770467-ns9sh8hfcba7149413841n9n2tqp9p32.apps.googleusercontent.com",
           "client_type": 3
         }

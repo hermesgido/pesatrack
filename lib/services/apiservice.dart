@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:pesatrack/models/budget.dart';
 import 'package:pesatrack/models/year_summary_model.dart';
@@ -9,6 +10,7 @@ class ApiService {
   Future<Map<String, String>> getHeaders() async {
     final headers = {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'Authorization': 'Bearer ${await getToken()}',
     };
 
@@ -21,8 +23,10 @@ class ApiService {
   }
 
   Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    var token = await FirebaseAuth.instance.currentUser!.getIdToken();
+    print(token);
+    // final prefs = await SharedPreferences.getInstance();
+    return token;
   }
 
   Future<void> removeToken() async {
@@ -116,6 +120,8 @@ class ApiService {
   Future<http.Response> getCategories() async {
     final response = await http.get(Uri.parse('$baseUrl/api/categories/'),
         headers: await getHeaders());
+    print(response.body);
+
     return response;
   }
 

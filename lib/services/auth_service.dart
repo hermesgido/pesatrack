@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pesatrack/main.dart';
 import 'package:pesatrack/screens/auth/login.dart';
+import 'package:pesatrack/screens/auth/register.dart';
 import 'package:pesatrack/screens/home_page.dart';
 
 class AuthService {
@@ -67,10 +70,44 @@ class AuthService {
     } catch (e) {}
   }
 
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  Future<User?> signInWithGoogle(BuildContext context) async {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    // This token will be used to sign in with Firebase
+    UserCredential userCredential =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+    print(userCredential);
+
+    await Future.delayed(const Duration(seconds: 1));
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (BuildContext context) => const MyApp()));
+
+    return userCredential.user;
+  }
+
   Future<void> signout({required BuildContext context}) async {
     await FirebaseAuth.instance.signOut();
     await Future.delayed(const Duration(seconds: 1));
     Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (BuildContext context) => AuthPage()));
+        MaterialPageRoute(builder: (BuildContext context) => const AuthPage()));
+  }
+
+  User? isAuthenticated() {
+    User? user = FirebaseAuth.instance.currentUser;
+    return user;
   }
 }

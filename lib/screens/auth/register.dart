@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pesatrack/providers/firebaseauth.dart';
 import 'package:pesatrack/services/auth_service.dart';
 import 'package:provider/provider.dart';
 import 'package:pesatrack/providers/authprovider.dart';
@@ -15,7 +16,7 @@ class _AuthPageState extends State<AuthPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool _isLogin = true; // State to toggle between login and registration
+  bool _isLogin = false; // State to toggle between login and registration
 
   Future<void> _authenticate() async {
     if (_formKey.currentState?.validate() ?? false) {
@@ -46,7 +47,7 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    // final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -73,6 +74,7 @@ class _AuthPageState extends State<AuthPage> {
                   "Continue with Google",
                   25,
                   () async {
+                   await  AuthService().signInWithGoogle(context);
                     // Call Google Sign-In functionality here
                   },
                 ),
@@ -90,7 +92,7 @@ class _AuthPageState extends State<AuthPage> {
                       const SizedBox(height: 15),
                       textItem("Password", _passwordController, true),
                       const SizedBox(height: 15),
-                      colorButton(_isLogin ? "Login" : "Sign Up", authProvider),
+                      colorButton(_isLogin ? "Login" : "Sign Up"),
                     ],
                   ),
                 ),
@@ -229,7 +231,7 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  Widget colorButton(String name, AuthProvider authProvider) {
+  Widget colorButton(String name,) {
     return InkWell(
       onTap: () async {
         await _authenticate();
@@ -248,9 +250,8 @@ class _AuthPageState extends State<AuthPage> {
           ),
         ),
         child: Center(
-          child: authProvider.isLoading
-              ? const CircularProgressIndicator()
-              : Text(
+          child:
+              Text(
                   name,
                   style: const TextStyle(
                     color: Colors.white,

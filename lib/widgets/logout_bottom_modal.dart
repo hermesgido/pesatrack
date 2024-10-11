@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pesatrack/screens/auth/login.dart';
+import 'package:pesatrack/screens/auth/register.dart';
+import 'package:pesatrack/services/auth_service.dart';
 import 'package:pesatrack/utils/token_handler.dart';
 
 class LogoutBottomSheetWidget extends StatelessWidget {
@@ -69,7 +72,10 @@ class LogoutBottomSheetWidget extends StatelessWidget {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: ()   {
+                          AuthService().signout(context: context);
+                             GoogleSignIn().signOut();  // Ensure Google account is signed out too
+
                           TokenHandler().clearToken();
                           Navigator.push(
                               context,

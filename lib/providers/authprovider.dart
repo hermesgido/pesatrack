@@ -1,8 +1,9 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pesatrack/main.dart';
-import 'package:pesatrack/screens/auth/login.dart';
+import 'package:pesatrack/screens/auth/register.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pesatrack/utils/urls.dart';
 
@@ -14,6 +15,34 @@ class AuthProvider with ChangeNotifier {
   bool get isAuthenticated => _isAuthenticated;
 
   Future<void> checkAuthentication(BuildContext context) async {
+    _isLoading = true;
+    // notifyListeners();
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // User is authenticated
+      print("This user is authenticateddd");
+      _isAuthenticated = true;
+    } else {
+      // User is not authenticated
+      _isAuthenticated = false;
+      print("This user is nottt");
+
+      // Redirect to AuthPage if not authenticated
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const AuthPage()),
+          (Route<dynamic> route) => false,
+        );
+      });
+    }
+
+    _isLoading = false;
+    // notifyListeners();
+  }
+
+  Future<void> checkAuthentication2(BuildContext context) async {
     _isLoading = true;
     // notifyListeners();
 
