@@ -479,8 +479,6 @@ void _showDeleteConfirmationDialog(BuildContext context, Budget budget) {
   );
 }
 
-void onEdit() {}
-
 void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
   final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
 
@@ -491,7 +489,6 @@ void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
   final TextEditingController _endDateController =
       TextEditingController(text: _dateFormat.format(DateTime.now()));
   final TextEditingController _descriptionController = TextEditingController();
-  bool _isLoading = false;
 
   Job? _selectedCategory;
   String _selectedType = "Expense";
@@ -502,11 +499,13 @@ void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
     _startDateController.text = _dateFormat.format(budget.startDate!);
     _endDateController.text = _dateFormat.format(budget.endDate!);
     _descriptionController.text = budget.budgetName ?? '';
+
+    // Set the selected category using setState inside StatefulBuilder
     _selectedCategory = Job(
-      budget.category!.id.toString(),
-      budget.category!.categoryName!,
-      Icons.catching_pokemon,
-    );
+        budget.category!.id.toString(),
+        budget.category!.categoryName!,
+        Icons.catching_pokemon,
+        budget.category?.categoryType);
   }
 
   showModalBottomSheet(
@@ -515,268 +514,258 @@ void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
     backgroundColor: Colors.transparent,
     builder: (BuildContext context) {
       return GestureDetector(
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-          child: DraggableScrollableSheet(
-            initialChildSize: 0.7,
-            maxChildSize: 0.9,
-            minChildSize: 0.5,
-            builder: (BuildContext context, ScrollController scrollController) {
-              return StatefulBuilder(
-                builder: (BuildContext context, StateSetter setState) {
-                  return GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(20),
-                        ),
-                      ),
-                      child: SingleChildScrollView(
-                        controller: scrollController,
-                        padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  budget != null ? 'Edit Budget' : 'Add Budget',
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                SearchDropdown(
-                                  initialValue: _selectedCategory,
-                                  onCategorySelected: (Job? value) {
-                                    _selectedCategory = value;
-                                    print(value);
-                                  },
-                                ),
-                                const SizedBox(height: 16),
-                                TextFormField(
-                                  controller: _amountController,
-                                  decoration: InputDecoration(
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                      ),
-                                    ),
-                                    labelText: 'Amount',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter an amount';
-                                    }
-                                    if (double.tryParse(value) == null) {
-                                      return 'Please enter a valid number';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: 16),
-                                TextFormField(
-                                  controller: _startDateController,
-                                  decoration: InputDecoration(
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                      ),
-                                    ),
-                                    labelText: 'Start Date',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    suffixIcon:
-                                        const Icon(Icons.calendar_today),
-                                  ),
-                                  readOnly: true,
-                                  onTap: () async {
-                                    DateTime? selectedDate =
-                                        await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime(2000),
-                                      lastDate: DateTime(2100),
-                                    );
+        onTap: () {
+          Navigator.of(context).pop();
+        },
+        child: DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          maxChildSize: 0.9,
+          minChildSize: 0.5,
+          builder: (BuildContext context, ScrollController scrollController) {
+            return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                bool isLoading = false; // Local loading state variable
 
-                                    if (selectedDate != null) {
+                return GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(20)),
+                    ),
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                budget != null ? 'Edit Budget' : 'Add Budget',
+                                style: const TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 16),
+                              SearchDropdown(
+                                initialValue: _selectedCategory,
+                                onCategorySelected: (Job? value) {
+                                  // Update the selected category
+                                  setState(() {
+                                    _selectedCategory = value;
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _amountController,
+                                decoration: InputDecoration(
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary),
+                                  ),
+                                  labelText: 'Amount',
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0)),
+                                ),
+                                keyboardType: TextInputType.number,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter an amount';
+                                  }
+                                  if (double.tryParse(value) == null) {
+                                    return 'Please enter a valid number';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _startDateController,
+                                decoration: InputDecoration(
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary),
+                                  ),
+                                  labelText: 'Start Date',
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0)),
+                                  suffixIcon: const Icon(Icons.calendar_today),
+                                ),
+                                readOnly: true,
+                                onTap: () async {
+                                  DateTime? selectedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime(2100),
+                                  );
+
+                                  if (selectedDate != null) {
+                                    setState(() {
                                       _startDateController.text =
                                           "${selectedDate.toLocal()}"
                                               .split(' ')[0];
-                                    }
-                                  },
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please select a start date';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: 16),
-                                TextFormField(
-                                  controller: _endDateController,
-                                  decoration: InputDecoration(
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
+                                    });
+                                  }
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please select a start date';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _endDateController,
+                                decoration: InputDecoration(
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
                                         color: Theme.of(context)
                                             .colorScheme
-                                            .secondary,
-                                      ),
-                                    ),
-                                    labelText: 'End Date',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    suffixIcon:
-                                        const Icon(Icons.calendar_today),
+                                            .secondary),
                                   ),
-                                  readOnly: true,
-                                  onTap: () async {
-                                    DateTime? selectedDate =
-                                        await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime(2000),
-                                      lastDate: DateTime(2100),
-                                    );
+                                  labelText: 'End Date',
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0)),
+                                  suffixIcon: const Icon(Icons.calendar_today),
+                                ),
+                                readOnly: true,
+                                onTap: () async {
+                                  DateTime? selectedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime(2100),
+                                  );
 
-                                    if (selectedDate != null) {
+                                  if (selectedDate != null) {
+                                    setState(() {
                                       _endDateController.text =
                                           "${selectedDate.toLocal()}"
                                               .split(' ')[0];
-                                    }
-                                  },
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please select an end date';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: 16),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                    onPressed: _isLoading
-                                        ? null
-                                        : () async {
-                                            if (_formKey.currentState!
-                                                .validate()) {
-                                              final budgetsProvider =
-                                                  Provider.of<BudgetProvider>(
-                                                      context,
-                                                      listen: false);
-
-                                              setState(() {
-                                                _isLoading = true;
-                                              });
-                                              try {
-                                                if (budget != null) {
-                                                  await budgetsProvider
-                                                      .updateBudget(
-                                                    budget.id!,
-                                                    Budget(
-                                                      amount: _amountController
-                                                          .text,
-                                                      startDate:
-                                                          DateTime.tryParse(
-                                                              _startDateController
-                                                                  .text)!,
-                                                      endDate:
-                                                          DateTime.tryParse(
-                                                              _endDateController
-                                                                  .text)!,
-                                                      budgetName:
-                                                          _descriptionController
-                                                              .text,
-                                                    ),
-                                                  );
-                                                } else {
-                                                  await budgetsProvider
-                                                      .createBudget(
-                                                    Budget(
-                                                      categoryId:
-                                                          _selectedCategory?.id,
-                                                    amount: _amountController
-                                                          .text,
-                                                      startDate:
-                                                          DateTime.tryParse(
-                                                        _dateFormat.format(
-                                                          DateTime.parse(
-                                                              _startDateController
-                                                                  .text),
-                                                        ),
-                                                      )!,
-                                                      endDate:
-                                                          DateTime.tryParse(
-                                                        _dateFormat.format(
-                                                          DateTime.parse(
-                                                              _endDateController
-                                                                  .text),
-                                                        ),
-                                                      )!,
-                                                      budgetName:
-                                                          _descriptionController
-                                                              .text,
-                                                    ),
-                                                  );
-                                                }
-                                                Navigator.of(context).pop();
-                                              } catch (e) {
-                                                // Handle error
-                                              } finally {
-                                                setState(() {
-                                                  _isLoading = false;
-                                                });
-                                              }
-                                            }
-                                          },
-                                    child: _isLoading
-                                        ? const CircularProgressIndicator()
-                                        : Text(
-                                            budget != null
-                                                ? 'Update Budget'
-                                                : 'Add Budget',
-                                            style: const TextStyle(
-                                                color: Colors.white),
-                                          ),
+                                    });
+                                  }
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please select an end date';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.primary,
                                   ),
+                                  onPressed: isLoading
+                                      ? null
+                                      : () async {
+                                          if (_formKey.currentState!
+                                              .validate()) {
+                                            final budgetsProvider =
+                                                Provider.of<BudgetProvider>(
+                                                    context,
+                                                    listen: false);
+
+                                            setState(() {
+                                              isLoading =
+                                                  true; // Set loading to true
+                                            });
+
+                                            try {
+                                              if (budget != null) {
+                                                await budgetsProvider
+                                                    .updateBudget(
+                                                  budget.id!,
+                                                  Budget(
+                                                    amount:
+                                                        _amountController.text,
+                                                    startDate:
+                                                        DateTime.tryParse(
+                                                            _startDateController
+                                                                .text)!,
+                                                    endDate: DateTime.tryParse(
+                                                        _endDateController
+                                                            .text)!,
+                                                    budgetName:
+                                                        _descriptionController
+                                                            .text,
+                                                  ),
+                                                );
+                                              } else {
+                                                await budgetsProvider
+                                                    .createBudget(
+                                                  Budget(
+                                                    categoryId:
+                                                        _selectedCategory?.id,
+                                                    amount:
+                                                        _amountController.text,
+                                                    startDate:
+                                                        DateTime.tryParse(
+                                                            _startDateController
+                                                                .text)!,
+                                                    endDate: DateTime.tryParse(
+                                                        _endDateController
+                                                            .text)!,
+                                                    budgetName:
+                                                        _descriptionController
+                                                            .text,
+                                                  ),
+                                                );
+                                              }
+                                              Navigator.of(context).pop();
+                                            } catch (e) {
+                                              // Handle error
+                                            } finally {
+                                              setState(() {
+                                                isLoading =
+                                                    false; // Set loading to false
+                                              });
+                                            }
+                                          }
+                                        },
+                                  child: isLoading
+                                      ? const CircularProgressIndicator()
+                                      : Text(
+                                          budget != null
+                                              ? 'Update Budget'
+                                              : 'Add Budget',
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                        ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                  );
-                },
-              );
-            },
-          ));
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      );
     },
   );
 }
+
+// void onEdit() {}
 
 const List<String> _list = [
   'Expense',
@@ -827,8 +816,9 @@ class Job with CustomDropdownListFilter {
   final String id;
   final String name;
   final IconData icon;
+  final String? category_type;
 
-  const Job(this.id, this.name, this.icon);
+  const Job(this.id, this.name, this.icon, this.category_type);
 
   @override
   String toString() {
@@ -872,12 +862,15 @@ class _SearchDropdownState extends State<SearchDropdown> {
         List<dynamic> categoriesJson = jsonDecode(response.body);
         setState(() {
           _list = categoriesJson
-              .map((category) => Job(category['id'].toString(),
-                  category['category_name'], Icons.category))
+              .map((category) => Job(
+                  category['id'].toString(),
+                  category['category_name'],
+                  Icons.category,
+                  category['category_type']))
               .toList();
           _loading = false;
         });
-        _list.add(const Job("0", "Select", Icons.category));
+        _list.add(const Job("0", "Select", Icons.category, "Expense"));
       } else {
         log('Failed to load categories');
       }
@@ -897,6 +890,14 @@ class _SearchDropdownState extends State<SearchDropdown> {
     print(widget.initialValue);
     print("this is initial value");
 
+    Job initV;
+    if (widget.initialValue == null) {
+      initV = _list.first;
+    } else {
+      initV =
+          _list.where((element) => element.id == widget.initialValue!.id).first;
+    }
+
     return CustomDropdown<Job>.search(
       decoration: CustomDropdownDecoration(
         closedFillColor: Theme.of(context).colorScheme.background,
@@ -914,7 +915,7 @@ class _SearchDropdownState extends State<SearchDropdown> {
       ),
       hintText: 'Select Category',
       items: _list,
-      // initialItem: widget.initialValue ?? Job("0", "Select", Icons.category),
+      initialItem: initV,
       excludeSelected: false,
       onChanged: (value) {
         setState(() {});

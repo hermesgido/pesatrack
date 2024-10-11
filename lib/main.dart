@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pesatrack/providers/authprovider.dart';
+import 'package:pesatrack/providers/authprovider.dart' as authp;
 import 'package:pesatrack/providers/budgets_provider.dart';
 import 'package:pesatrack/providers/categories_provider.dart';
 import 'package:pesatrack/providers/expense_cat_provider.dart';
@@ -11,7 +11,6 @@ import 'package:pesatrack/providers/forex_provider.dart';
 import 'package:pesatrack/providers/transactions_provider.dart';
 import 'package:pesatrack/providers/year_summary_provider.dart';
 import 'package:pesatrack/providers/yearly_budget_provider.dart';
-import 'package:pesatrack/screens/auth/login.dart';
 import 'package:pesatrack/screens/auth/register.dart';
 import 'package:pesatrack/screens/home_page.dart';
 import 'package:pesatrack/screens/morepages/more_pages.dart';
@@ -29,7 +28,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        // ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => authp.AuthProvider()),
         ChangeNotifierProvider(create: (_) => TransactionsProvider()),
         ChangeNotifierProvider(create: (_) => YearSummaryProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),

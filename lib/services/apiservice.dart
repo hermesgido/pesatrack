@@ -3,20 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:pesatrack/models/budget.dart';
 import 'package:pesatrack/models/year_summary_model.dart';
+import 'package:pesatrack/utils/headers.dart';
 import 'package:pesatrack/utils/urls.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  Future<Map<String, String>> getHeaders() async {
-    final headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer ${await getToken()}',
-    };
-
-    return headers;
-  }
-
   Future<void> storeToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
@@ -345,6 +336,7 @@ class ApiService {
 
   Future<YearBudgetSummary> getYearlyBudgetSummary(int year) async {
     final url = Uri.parse('$baseUrl/api/budgets/summary/2024/');
+    print(url);
 
     final response = await http.get(url, headers: await getHeaders());
     print(response.body);

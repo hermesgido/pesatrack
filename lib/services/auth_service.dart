@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pesatrack/main.dart';
-import 'package:pesatrack/screens/auth/login.dart';
 import 'package:pesatrack/screens/auth/register.dart';
-import 'package:pesatrack/screens/home_page.dart';
+
 
 class AuthService {
   Future<void> signup(
@@ -17,10 +16,8 @@ class AuthService {
           .createUserWithEmailAndPassword(email: email, password: password);
 
       await Future.delayed(const Duration(seconds: 1));
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (BuildContext context) => const HomeScreen()));
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (BuildContext context) => const MyApp()));
     } on FirebaseAuthException catch (e) {
       String message = '';
       if (e.code == 'weak-password') {
@@ -32,7 +29,7 @@ class AuthService {
         msg: message,
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.SNACKBAR,
-        backgroundColor: Colors.black54,
+        backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 14.0,
       );
@@ -48,10 +45,8 @@ class AuthService {
           .signInWithEmailAndPassword(email: email, password: password);
 
       await Future.delayed(const Duration(seconds: 1));
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (BuildContext context) => const HomeScreen()));
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (BuildContext context) => const MyApp()));
     } on FirebaseAuthException catch (e) {
       String message = '';
       if (e.code == 'invalid-email') {
@@ -69,7 +64,6 @@ class AuthService {
       );
     } catch (e) {}
   }
-
 
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 

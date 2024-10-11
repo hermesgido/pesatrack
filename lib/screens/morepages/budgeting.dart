@@ -108,9 +108,6 @@ class _BudgetPageState extends State<BudgetPage> {
     );
   }
 
-
-
-
   void showAddEditBudgetModal(BuildContext context, {Budget? budget}) {
     final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
 
@@ -123,7 +120,7 @@ class _BudgetPageState extends State<BudgetPage> {
     final TextEditingController _descriptionController =
         TextEditingController();
     bool _isLoading = false;
-     Job? _selectedCategory;
+    Job? _selectedCategory;
     String _selectedType = "Expense";
 
     if (budget != null) {
@@ -343,7 +340,7 @@ class _BudgetPageState extends State<BudgetPage> {
                                                         .updateBudget(
                                                       budget.id!,
                                                       Budget(
-                                                        amount: 
+                                                        amount:
                                                             _amountController
                                                                 .text,
                                                         startDate:
@@ -359,11 +356,13 @@ class _BudgetPageState extends State<BudgetPage> {
                                                                 .text,
                                                       ),
                                                     );
+                                                    budgetsProvider
+                                                        .fetchBudgets();
                                                   } else {
                                                     await budgetsProvider
                                                         .createBudget(
                                                       Budget(
-                                                        amount: 
+                                                        amount:
                                                             _amountController
                                                                 .text,
                                                         startDate: DateTime.tryParse(
@@ -384,6 +383,8 @@ class _BudgetPageState extends State<BudgetPage> {
                                                                 .text,
                                                       ),
                                                     );
+                                                    budgetsProvider
+                                                        .fetchBudgets();
                                                     // Add new budget
                                                     // await budgetsProvider.createBudget(
                                                     //   _descriptionController.text,

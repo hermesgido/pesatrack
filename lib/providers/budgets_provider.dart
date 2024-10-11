@@ -50,12 +50,14 @@ class BudgetProvider with ChangeNotifier {
   Future<void> updateBudget(int id, Budget budget) async {
     try {
       final response = await _apiService.updateBudget(id, budget.toJson());
+      print(budget.category);
+      print(response.body);
       if (response.statusCode == 200) {
         final updatedBudget = Budget.fromJson(jsonDecode(response.body));
         final index = _budgets.indexWhere((b) => b.id == id);
         if (index != -1) {
           _budgets[index] = updatedBudget;
-          notifyListeners();
+          notifyListeners(); // Notify listeners after updating
         }
       } else {
         print('Failed to update budget');

@@ -7,15 +7,6 @@ import 'package:pesatrack/providers/transactions_provider.dart';
 import 'package:pesatrack/services/apiservice.dart';
 import 'package:provider/provider.dart';
 
-import 'dart:convert';
-import 'dart:developer';
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:pesatrack/providers/transactions_provider.dart';
-import 'package:pesatrack/services/apiservice.dart';
-import 'package:provider/provider.dart';
-
 void showAddTransactionModal(BuildContext context) {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
@@ -326,8 +317,9 @@ class Job with CustomDropdownListFilter {
   final String id;
   final String name;
   final IconData icon;
+  final String type;
 
-  const Job(this.id, this.name, this.icon);
+  const Job(this.id, this.name, this.icon, this.type);
 
   @override
   String toString() {
@@ -367,8 +359,11 @@ class _SearchDropdownState extends State<SearchDropdown> {
         List<dynamic> categoriesJson = jsonDecode(response.body);
         setState(() {
           _list = categoriesJson
-              .map((category) => Job(category['id'].toString(),
-                  category['category_name'], Icons.category))
+              .map((category) => Job(
+                  category['id'].toString(),
+                  category['category_name'],
+                  Icons.category,
+                  category['category_type']))
               .toList();
           _loading = false;
         });

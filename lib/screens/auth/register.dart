@@ -32,11 +32,11 @@ class _AuthPageState extends State<AuthPage> {
           await AuthService()
               .signup(email: email, password: password, context: context);
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  _isLogin ? 'Login successful' : 'Registration successful')),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //       content: Text(
+        //           _isLogin ? 'Login successful' : 'Registration successful')),
+        // );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),
@@ -47,7 +47,7 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    // final authProvider = Provider.of<AuthProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -74,7 +74,7 @@ class _AuthPageState extends State<AuthPage> {
                   "Continue with Google",
                   25,
                   () async {
-                   await  AuthService().signInWithGoogle(context);
+                    await AuthService().signInWithGoogle(context);
                     // Call Google Sign-In functionality here
                   },
                 ),
@@ -231,7 +231,9 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  Widget colorButton(String name,) {
+  Widget colorButton(
+    String name,
+  ) {
     return InkWell(
       onTap: () async {
         await _authenticate();
@@ -250,14 +252,13 @@ class _AuthPageState extends State<AuthPage> {
           ),
         ),
         child: Center(
-          child:
-              Text(
-                  name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
+          child: Text(
+            name,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+          ),
         ),
       ),
     );

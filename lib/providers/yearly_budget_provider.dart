@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pesatrack/models/budget.dart';
 import 'package:pesatrack/services/apiservice.dart';
+import 'package:pesatrack/utils/chankprint.dart';
 
 class YearBudgetSummaryProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
@@ -20,7 +22,8 @@ class YearBudgetSummaryProvider with ChangeNotifier {
     // await Future.delayed(const Duration(hours: 1));
     // try {
     YearBudgetSummary summary = await _apiService.getYearlyBudgetSummary(year);
-    print(summary);
+    // print(summary);
+    printInChunks(summary.toString());
     print("ddddddddddddddddddd");
     _yearSummary = summary;
     // } catch (error) {
